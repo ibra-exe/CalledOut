@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 // useState kept for playAgainVotes
 import { useNavigate, useParams } from 'react-router-dom'
 import { ref, update, remove } from 'firebase/database'
@@ -7,6 +7,7 @@ import { useRoom } from '../hooks/useRoom'
 import { usePlayers } from '../hooks/usePlayers'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { assignTitles } from '../utils/statsUtils'
+import { playGameOver, playTitleAssigned } from '../utils/soundUtils'
 
 const TITLE_EMOJIS: Record<string, string> = {
   'The Main Character': '🌟',
@@ -36,6 +37,14 @@ export function StatsScreen() {
   useEffect(() => {
     if (room?.status === 'lobby') navigate(`/lobby/${code}`)
   }, [room?.status, code, navigate])
+
+  const hasSounded = useRef(false)
+  useEffect(() => {
+    if (!revealed || hasSounded.current) return
+    hasSounded.current = true
+    playGameOver()
+    titles.forEach((_, i) => setTimeout(() => playTitleAssigned(), 700 + i * 120))
+  }, [revealed]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const activePlayers = Object.entries(players).filter(([, p]) => !p.isKicked && p.name.trim())
   const history = room?.questionHistory ?? {}

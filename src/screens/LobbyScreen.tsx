@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ref, update, remove } from 'firebase/database'
 import { db } from '../firebase'
@@ -6,6 +6,7 @@ import { useRoom } from '../hooks/useRoom'
 import { usePlayers } from '../hooks/usePlayers'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { getSavedProfile, saveProfileLocally } from '../utils/profileUtils'
+import { playPlayerJoin, playProfileSaved } from '../utils/soundUtils'
 import { PlayerCard } from '../components/PlayerCard'
 import { EmojiPicker } from '../components/EmojiPicker'
 import { ColorPicker } from '../components/ColorPicker'
@@ -31,6 +32,15 @@ export function LobbyScreen() {
 
   const me = players[playerId]
   const isHost = me?.isHost ?? false
+
+  // Play a sound when a new player joins
+  const knownPlayerIds = useRef<Set<string>>(new Set())
+  useEffect(() => {
+    const current = Object.keys(players).filter(id => !players[id].isKicked)
+    const newOnes = current.filter(id => !knownPlayerIds.current.has(id))
+    if (newOnes.length > 0 && knownPlayerIds.current.size > 0) playPlayerJoin()
+    current.forEach(id => knownPlayerIds.current.add(id))
+  }, [players])
 
   // Auto-write saved profile to Firebase on mount
   useEffect(() => {
@@ -71,6 +81,7 @@ export function LobbyScreen() {
     setSaving(true)
     await update(ref(db, `rooms/${code}/players/${playerId}`), { name: name.trim(), icon, color, font })
     saveProfileLocally({ name: name.trim(), icon, color, font })
+    playProfileSaved()
     setSaving(false)
   }
 

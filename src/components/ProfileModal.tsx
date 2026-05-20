@@ -4,6 +4,7 @@ import { ColorPicker } from './ColorPicker'
 import { FontPicker } from './FontPicker'
 import { getSavedProfile, saveProfileLocally } from '../utils/profileUtils'
 import type { PlayerProfile } from '../utils/profileUtils'
+import { playProfileSaved } from '../utils/soundUtils'
 
 interface Props {
   onClose: () => void
@@ -22,6 +23,7 @@ export function ProfileModal({ onClose, onSave }: Props) {
     if (!name.trim()) return
     const profile: PlayerProfile = { name: name.trim(), icon, color, font }
     saveProfileLocally(profile)
+    playProfileSaved()
     onSave?.(profile)
     onClose()
   }

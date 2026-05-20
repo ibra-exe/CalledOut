@@ -7,6 +7,7 @@ import { usePlayers } from '../hooks/usePlayers'
 import { useVotes } from '../hooks/useVotes'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { tallyVotes, getWinners } from '../utils/voteUtils'
+import { playResultsReveal, playWinnerFanfare, playTie } from '../utils/soundUtils'
 import { QuestionCard } from '../components/QuestionCard'
 import { ConfettiEffect } from '../components/ConfettiEffect'
 import { ExitModal } from '../components/ExitModal'
@@ -32,9 +33,16 @@ export function RevealScreen() {
 
   useEffect(() => {
     if (room?.status === 'reveal' && !revealed) {
+      playResultsReveal()
       setTimeout(() => setRevealed(true), 400)
     }
   }, [room?.status, revealed])
+
+  useEffect(() => {
+    if (!revealed) return
+    const isTie = winners.length > 1 || (tally[winners[0]] ?? 0) === 0
+    setTimeout(() => isTie ? playTie() : playWinnerFanfare(), 600)
+  }, [revealed]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const tally = tallyVotes(votes)
   const winners = getWinners(tally)

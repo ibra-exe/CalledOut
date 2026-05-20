@@ -11,6 +11,10 @@ import { VoteButton } from '../components/VoteButton'
 import { TimerBar } from '../components/TimerBar'
 import { ExitModal } from '../components/ExitModal'
 import { tallyVotes } from '../utils/voteUtils'
+import {
+  playQuestionReveal, playGameStarting, playVoteCast,
+  playTimerTick, playTimerExpire, playAllVotesIn,
+} from '../utils/soundUtils'
 
 export function GameScreen() {
   const { code = '' } = useParams<{ code: string }>()
@@ -22,6 +26,7 @@ export function GameScreen() {
   const votes = useVotes(code, qIndex)
   const [timerKey, setTimerKey] = useState(0)
   const [showExit, setShowExit] = useState(false)
+  const isFirstQuestion = useRef(true)
 
   const me = players[playerId]
   const isHost = me?.isHost ?? false
@@ -35,6 +40,12 @@ export function GameScreen() {
 
   useEffect(() => {
     setTimerKey(k => k + 1)
+    if (isFirstQuestion.current) {
+      isFirstQuestion.current = false
+      playGameStarting()
+    } else {
+      playQuestionReveal()
+    }
   }, [qIndex])
 
   // Only navigate to lobby — GameRouter handles reveal/stats
@@ -45,6 +56,7 @@ export function GameScreen() {
   // Auto-advance when all votes are in (only in autoAdvance mode)
   useEffect(() => {
     if (autoAdvance && room?.status === 'playing' && voteCount >= totalExpected && totalExpected > 0 && isHost) {
+      playAllVotesIn()
       advanceToReveal()
     }
   }, [voteCount, totalExpected]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -56,6 +68,7 @@ export function GameScreen() {
 
   const castVote = async (votedFor: string) => {
     if (myVote) return
+    playVoteCast()
     await set(ref(db, `rooms/${code}/votes/${qIndex}/${playerId}`), votedFor)
   }
 
@@ -65,6 +78,15 @@ export function GameScreen() {
     await update(ref(db, `rooms/${code}/questionHistory/${qIndex}/votes`), tally)
     await update(ref(db, `rooms/${code}`), { status: 'reveal' })
   }, [isHost, room?.status, code, qIndex])
+
+  const handleTimerExpire = useCallback(() => {
+    playTimerExpire()
+    advanceToReveal()
+  }, [advanceToReveal])
+
+  const handleTick = useCallback((remaining: number) => {
+    if (remaining <= 5 && remaining > 0) playTimerTick()
+  }, [])
 
   const handleEndGame = async () => {
     await remove(ref(db, `rooms/${code}`))
@@ -115,7 +137,8 @@ export function GameScreen() {
         key={timerKey}
         durationSeconds={timerSeconds}
         running={room.status === 'playing'}
-        onExpire={isHost && autoAdvance ? advanceToReveal : () => {}}
+        onExpire={isHost && autoAdvance ? handleTimerExpire : () => {}}
+        onTick={handleTick}
       />
 
       <div className="flex-1 flex flex-col px-4 pt-4 pb-6 gap-5">

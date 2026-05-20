@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react'
 interface Props {
   durationSeconds: number
   onExpire: () => void
+  onTick?: (remaining: number) => void
   running: boolean
 }
 
-export function TimerBar({ durationSeconds, onExpire, running }: Props) {
+export function TimerBar({ durationSeconds, onExpire, onTick, running }: Props) {
   const [remaining, setRemaining] = useState(durationSeconds)
 
   useEffect(() => {
@@ -22,7 +23,9 @@ export function TimerBar({ durationSeconds, onExpire, running }: Props) {
           onExpire()
           return 0
         }
-        return prev - 1
+        const next = prev - 1
+        onTick?.(next)
+        return next
       })
     }, 1000)
     return () => clearInterval(interval)
