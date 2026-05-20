@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ref, set, update, remove } from 'firebase/database'
 import { db } from '../firebase'
@@ -42,12 +42,17 @@ export function GameScreen() {
     if (room?.status === 'lobby') navigate(`/lobby/${code}`)
   }, [room?.status, code, navigate])
 
-  // Auto-advance when all votes are in
+  // Auto-advance when all votes are in (only in autoAdvance mode)
   useEffect(() => {
-    if (room?.status === 'playing' && voteCount >= totalExpected && totalExpected > 0 && isHost) {
+    if (autoAdvance && room?.status === 'playing' && voteCount >= totalExpected && totalExpected > 0 && isHost) {
       advanceToReveal()
     }
   }, [voteCount, totalExpected]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep a ref to latest votes so advanceToReveal doesn't need votes in its deps
+  // (avoids restarting TimerBar's interval on every vote cast)
+  const votesRef = useRef(votes)
+  useEffect(() => { votesRef.current = votes }, [votes])
 
   const castVote = async (votedFor: string) => {
     if (myVote) return
@@ -56,10 +61,10 @@ export function GameScreen() {
 
   const advanceToReveal = useCallback(async () => {
     if (!isHost || room?.status !== 'playing') return
-    const tally = tallyVotes(votes)
+    const tally = tallyVotes(votesRef.current)
     await update(ref(db, `rooms/${code}/questionHistory/${qIndex}/votes`), tally)
     await update(ref(db, `rooms/${code}`), { status: 'reveal' })
-  }, [isHost, room?.status, votes, code, qIndex])
+  }, [isHost, room?.status, code, qIndex])
 
   const handleEndGame = async () => {
     await remove(ref(db, `rooms/${code}`))
@@ -109,7 +114,7 @@ export function GameScreen() {
       <TimerBar
         key={timerKey}
         durationSeconds={timerSeconds}
-        running={room.status === 'playing' && !myVote}
+        running={room.status === 'playing'}
         onExpire={isHost && autoAdvance ? advanceToReveal : () => {}}
       />
 
@@ -166,7 +171,7 @@ export function GameScreen() {
                 Show Results →
               </button>
             )}
-            {autoAdvance && !myVote && (
+            {autoAdvance && (
               <button
                 onClick={advanceToReveal}
                 className="py-3 rounded-xl bg-white/5 text-gray-400 text-sm font-semibold border border-white/10 hover:bg-white/10 transition-colors"
