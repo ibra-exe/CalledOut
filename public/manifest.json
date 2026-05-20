@@ -1,0 +1,17 @@
+{
+  "name": "Called Out",
+  "short_name": "CalledOut",
+  "description": "A social party game where friends vote on who best fits each question",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F0F0F",
+  "theme_color": "#FFE500",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
