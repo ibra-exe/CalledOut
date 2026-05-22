@@ -16,20 +16,11 @@ export function ExitModal({ isHost, onEndGame, onLeave, onCancel }: Props) {
           {isHost ? 'You\'re the host — ending the game kicks everyone out.' : 'You\'ll be removed from the session.'}
         </p>
 
-        {isHost && (
-          <button
-            onClick={onEndGame}
-            className="w-full py-4 rounded-2xl bg-[#FF4D4D]/15 text-[#FF4D4D] font-bold border border-[#FF4D4D]/30 hover:bg-[#FF4D4D]/25 active:scale-[0.98] transition-all"
-          >
-            End Game for Everyone
-          </button>
-        )}
-
         <button
-          onClick={onLeave}
-          className="w-full py-4 rounded-2xl bg-white/5 text-white font-bold border border-white/10 hover:bg-white/10 active:scale-[0.98] transition-all"
+          onClick={isHost ? onEndGame : onLeave}
+          className="w-full py-4 rounded-2xl bg-[#FF4D4D]/15 text-[#FF4D4D] font-bold border border-[#FF4D4D]/30 hover:bg-[#FF4D4D]/25 active:scale-[0.98] transition-all"
         >
-          {isHost ? 'Leave Quietly (pass host)' : 'Leave Game'}
+          {isHost ? 'End Game for Everyone' : 'Leave Game'}
         </button>
 
         <button

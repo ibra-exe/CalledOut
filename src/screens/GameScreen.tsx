@@ -27,6 +27,7 @@ export function GameScreen() {
   const [timerKey, setTimerKey] = useState(0)
   const [showExit, setShowExit] = useState(false)
   const isFirstQuestion = useRef(true)
+  const hasAdvanced = useRef(false) // prevent double-fire per question
 
   const me = players[playerId]
   const isHost = me?.isHost ?? false
@@ -40,6 +41,7 @@ export function GameScreen() {
   const autoAdvance = room?.settings?.autoAdvance ?? true
 
   useEffect(() => {
+    hasAdvanced.current = false // reset guard for new question
     setTimerKey(k => k + 1)
     if (isFirstQuestion.current) {
       isFirstQuestion.current = false
@@ -56,11 +58,12 @@ export function GameScreen() {
 
   // Auto-advance when all votes are in (only in autoAdvance mode)
   useEffect(() => {
-    if (autoAdvance && room?.status === 'playing' && voteCount >= totalExpected && totalExpected > 0 && isHost) {
+    if (!allVoted) return
+    if (autoAdvance && room?.status === 'playing' && isHost) {
       playAllVotesIn()
       advanceToReveal()
     }
-  }, [voteCount, totalExpected]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [allVoted]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keep a ref to latest votes so advanceToReveal doesn't need votes in its deps
   // (avoids restarting TimerBar's interval on every vote cast)
@@ -75,9 +78,14 @@ export function GameScreen() {
 
   const advanceToReveal = useCallback(async () => {
     if (!isHost || room?.status !== 'playing') return
+    if (hasAdvanced.current) return
+    hasAdvanced.current = true
     const tally = tallyVotes(votesRef.current)
-    await update(ref(db, `rooms/${code}/questionHistory/${qIndex}/votes`), tally)
-    await update(ref(db, `rooms/${code}`), { status: 'reveal' })
+    // Single atomic update: no intermediate Firebase state
+    await update(ref(db, `rooms/${code}`), {
+      status: 'reveal',
+      [`questionHistory/${qIndex}/votes`]: tally,
+    })
   }, [isHost, room?.status, code, qIndex])
 
   const handleTimerExpire = useCallback(() => {
@@ -96,15 +104,11 @@ export function GameScreen() {
 
   const handleLeave = async () => {
     if (isHost) {
-      // Pass host to first other named player
-      const others = activePlayers.filter(([pid]) => pid !== playerId)
-      if (others.length > 0) {
-        const [newHostId] = others[0]
-        await update(ref(db, `rooms/${code}/players/${newHostId}`), { isHost: true })
-        await update(ref(db, `rooms/${code}`), { hostId: newHostId })
-      }
+      // Host leaving ends the game for everyone
+      await remove(ref(db, `rooms/${code}`))
+    } else {
+      await update(ref(db, `rooms/${code}/players/${playerId}`), { isKicked: true })
     }
-    await update(ref(db, `rooms/${code}/players/${playerId}`), { isKicked: true })
     navigate('/')
   }
 

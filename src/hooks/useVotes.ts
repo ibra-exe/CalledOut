@@ -7,6 +7,7 @@ export function useVotes(code: string, questionIndex: number) {
 
   useEffect(() => {
     if (!code) return
+    setVotes({}) // clear stale votes immediately before new subscription fires
     const votesRef = ref(db, `rooms/${code}/votes/${questionIndex}`)
     const unsub = onValue(votesRef, snap => {
       setVotes(snap.exists() ? (snap.val() as Record<string, string>) : {})

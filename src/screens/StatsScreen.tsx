@@ -24,7 +24,7 @@ const TITLE_EMOJIS: Record<string, string> = {
 export function StatsScreen() {
   const { code = '' } = useParams<{ code: string }>()
   const navigate = useNavigate()
-  const { room } = useRoom(code)
+  const { room, notFound } = useRoom(code)
   const { players } = usePlayers(code)
   const playerId = getOrCreatePlayerId()
   const [playAgainVotes, setPlayAgainVotes] = useState<Set<string>>(new Set())
@@ -34,8 +34,14 @@ export function StatsScreen() {
   const me = players[playerId]
   const isHost = me?.isHost ?? false
 
+  // Room deleted (host ended game) → go home
   useEffect(() => {
-    if (room?.status === 'lobby') navigate(`/lobby/${code}`)
+    if (notFound) navigate('/')
+  }, [notFound, navigate])
+
+  // Restart navigates status to category-select → return to lobby
+  useEffect(() => {
+    if (room?.status === 'lobby' || room?.status === 'category-select') navigate(`/lobby/${code}`)
   }, [room?.status, code, navigate])
 
   const hasSounded = useRef(false)

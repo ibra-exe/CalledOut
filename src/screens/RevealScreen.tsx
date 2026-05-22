@@ -65,6 +65,7 @@ export function RevealScreen() {
       status: 'playing',
       currentQuestionIndex: nextIndex,
       currentQuestion: { text: nextQ?.text ?? '', category: nextQ?.category ?? '' },
+      [`votes/${nextIndex}`]: null, // wipe any stale votes for the incoming question
     })
   }
 
@@ -74,16 +75,12 @@ export function RevealScreen() {
   }
 
   const handleLeave = async () => {
-    const activePlayers = Object.entries(players).filter(([, p]) => !p.isKicked && p.name.trim())
     if (isHost) {
-      const others = activePlayers.filter(([pid]) => pid !== playerId)
-      if (others.length > 0) {
-        const [newHostId] = others[0]
-        await update(ref(db, `rooms/${code}/players/${newHostId}`), { isHost: true })
-        await update(ref(db, `rooms/${code}`), { hostId: newHostId })
-      }
+      // Host leaving ends the game for everyone
+      await remove(ref(db, `rooms/${code}`))
+    } else {
+      await update(ref(db, `rooms/${code}/players/${playerId}`), { isKicked: true })
     }
-    await update(ref(db, `rooms/${code}/players/${playerId}`), { isKicked: true })
     navigate('/')
   }
 
