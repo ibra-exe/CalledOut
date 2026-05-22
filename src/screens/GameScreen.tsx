@@ -37,8 +37,7 @@ export function GameScreen() {
   const totalExpected = activePlayers.length
   const allVoted = totalExpected > 0 && voteCount >= totalExpected
 
-  const timerSeconds = room?.settings?.timerSeconds ?? 30
-  const autoAdvance = room?.settings?.autoAdvance ?? true
+  const timerSeconds = room?.settings?.timerSeconds ?? 15
 
   useEffect(() => {
     hasAdvanced.current = false // reset guard for new question
@@ -56,10 +55,10 @@ export function GameScreen() {
     if (room?.status === 'lobby') navigate(`/lobby/${code}`)
   }, [room?.status, code, navigate])
 
-  // Auto-advance when all votes are in (only in autoAdvance mode)
+  // Auto-advance when all votes are in
   useEffect(() => {
     if (!allVoted) return
-    if (autoAdvance && room?.status === 'playing' && isHost) {
+    if (room?.status === 'playing' && isHost) {
       playAllVotesIn()
       advanceToReveal()
     }
@@ -142,7 +141,7 @@ export function GameScreen() {
         key={timerKey}
         durationSeconds={timerSeconds}
         running={room.status === 'playing'}
-        onExpire={isHost && autoAdvance ? handleTimerExpire : () => {}}
+        onExpire={isHost ? handleTimerExpire : () => {}}
         onTick={handleTick}
       />
 
@@ -188,42 +187,20 @@ export function GameScreen() {
             ))}
         </div>
 
-        {/* Host controls */}
+        {/* Host vote progress dots */}
         {isHost && (
-          <div className="mt-auto flex flex-col gap-2">
-            {/* Vote progress dots */}
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-gray-500 text-xs font-semibold">{voteCount}/{totalExpected} voted</span>
-              <div className="flex gap-1.5">
-                {activePlayers
-                  .sort(([, a], [, b]) => a.joinedAt - b.joinedAt)
-                  .map(([pid]) => (
-                    <div
-                      key={pid}
-                      className={`w-2 h-2 rounded-full transition-colors duration-300 ${votes[pid] ? 'bg-[#FFE500]' : 'bg-white/20'}`}
-                    />
-                  ))}
-              </div>
+          <div className="mt-auto flex items-center justify-center gap-2 py-2">
+            <span className="text-gray-500 text-xs font-semibold">{voteCount}/{totalExpected} voted</span>
+            <div className="flex gap-1.5">
+              {activePlayers
+                .sort(([, a], [, b]) => a.joinedAt - b.joinedAt)
+                .map(([pid]) => (
+                  <div
+                    key={pid}
+                    className={`w-2 h-2 rounded-full transition-colors duration-300 ${votes[pid] ? 'bg-[#FFE500]' : 'bg-white/20'}`}
+                  />
+                ))}
             </div>
-
-            {!autoAdvance && (
-              <button
-                onClick={advanceToReveal}
-                disabled={!allVoted}
-                className="w-full py-4 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-base hover:bg-yellow-300 active:scale-[0.97] transition-all disabled:opacity-40 disabled:pointer-events-none"
-              >
-                Show Results →
-              </button>
-            )}
-            {autoAdvance && (
-              <button
-                onClick={advanceToReveal}
-                disabled={!allVoted}
-                className="py-3 rounded-xl bg-white/5 text-gray-400 text-sm font-semibold border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-40 disabled:pointer-events-none"
-              >
-                Skip to Results
-              </button>
-            )}
           </div>
         )}
       </div>

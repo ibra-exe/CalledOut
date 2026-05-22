@@ -11,14 +11,13 @@ interface Props {
 type Mode = 'all' | 'random' | 'custom'
 
 const QUESTION_COUNT_OPTIONS = [5, 10, 15, 20, 30]
-const TIMER_OPTIONS = [10, 15, 20, 30, 60]
+const TIMER_OPTIONS = [5, 10, 15, 20, 25]
 
 export function CategorySelectScreen({ code, onClose }: Props) {
   const [mode, setMode] = useState<Mode>('all')
   const [selected, setSelected] = useState<string[]>([])
   const [questionCount, setQuestionCount] = useState(15)
-  const [timerSeconds, setTimerSeconds] = useState(30)
-  const [autoAdvance, setAutoAdvance] = useState(true)
+  const [timerSeconds, setTimerSeconds] = useState(15)
   const [loading, setLoading] = useState(false)
 
   const toggleCategory = (id: string) => {
@@ -55,7 +54,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
       currentQuestion: limited[0],
       questionOrder: limited.map((_, i) => i),
       questionHistory,
-      settings: { timerSeconds, autoAdvance },
+      settings: { timerSeconds },
     })
 
     setLoading(false)
@@ -109,36 +108,6 @@ export function CategorySelectScreen({ code, onClose }: Props) {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Auto-advance toggle */}
-        <div>
-          <p className="text-white font-bold text-sm mb-3">When Timer Ends</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setAutoAdvance(true)}
-              className={`flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all ${
-                autoAdvance
-                  ? 'border-[#FFE500] bg-[#FFE500]/10 text-[#FFE500]'
-                  : 'border-white/10 bg-[#1A1A1A] text-gray-400'
-              }`}
-            >
-              ⚡ Auto-advance
-            </button>
-            <button
-              onClick={() => setAutoAdvance(false)}
-              className={`flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all ${
-                !autoAdvance
-                  ? 'border-[#FFE500] bg-[#FFE500]/10 text-[#FFE500]'
-                  : 'border-white/10 bg-[#1A1A1A] text-gray-400'
-              }`}
-            >
-              🎯 Host decides
-            </button>
-          </div>
-          <p className="text-gray-600 text-xs mt-2">
-            {autoAdvance ? 'Moves to results automatically when timer runs out' : 'Host taps "Show Results" when ready'}
-          </p>
         </div>
 
         <div className="h-px bg-white/10" />
