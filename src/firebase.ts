@@ -2,13 +2,13 @@ import { initializeApp } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyApSUlvK3IFcyZ06WFucPXIxmoYBUD_yM4",
-  authDomain: "called-out-game.firebaseapp.com",
-  databaseURL: "https://called-out-game-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "called-out-game",
-  storageBucket: "called-out-game.appspot.com",
-  messagingSenderId: "986223458646",
-  appId: "1:986223458646:web:9937ded2c9eebda4eafef7"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
 const app = initializeApp(firebaseConfig)

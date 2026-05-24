@@ -31,6 +31,11 @@ export function RevealScreen() {
     if (room?.status === 'lobby') navigate(`/lobby/${code}`)
   }, [room?.status, code, navigate])
 
+  // Navigate away if this player was kicked by the host
+  useEffect(() => {
+    if (me?.isKicked) navigate('/')
+  }, [me?.isKicked, navigate])
+
   useEffect(() => {
     if (room?.status === 'reveal' && !revealed) {
       playResultsReveal()
@@ -74,12 +79,11 @@ export function RevealScreen() {
     navigate('/')
   }
 
-  const handleLeave = async () => {
+  const handleLeave = () => {
     if (isHost) {
-      // Host leaving ends the game for everyone
-      await remove(ref(db, `rooms/${code}`))
+      remove(ref(db, `rooms/${code}`)) // ends the game for everyone
     } else {
-      await update(ref(db, `rooms/${code}/players/${playerId}`), { isKicked: true })
+      remove(ref(db, `rooms/${code}/players/${playerId}`)) // remove self, fire and forget
     }
     navigate('/')
   }

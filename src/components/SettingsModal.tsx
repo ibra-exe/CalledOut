@@ -36,10 +36,10 @@ export function SettingsModal({ onClose }: Props) {
           </div>
           <button
             onClick={() => update({ soundEnabled: !settings.soundEnabled })}
-            className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${settings.soundEnabled ? 'bg-[#FFE500]' : 'bg-white/20'}`}
+            className={`relative w-14 h-7 rounded-full flex-shrink-0 transition-colors duration-200 ${settings.soundEnabled ? 'bg-[#FFE500]' : 'bg-white/20'}`}
           >
             <span
-              className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${settings.soundEnabled ? 'translate-x-6' : 'translate-x-0.5'}`}
+              className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${settings.soundEnabled ? 'translate-x-7' : 'translate-x-0'}`}
             />
           </button>
         </div>

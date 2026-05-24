@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Props {
   durationSeconds: number
@@ -10,6 +10,12 @@ interface Props {
 export function TimerBar({ durationSeconds, onExpire, onTick, running }: Props) {
   const [remaining, setRemaining] = useState(durationSeconds)
 
+  // Keep callback refs current so the interval never needs to restart when they change
+  const onExpireRef = useRef(onExpire)
+  const onTickRef = useRef(onTick)
+  useEffect(() => { onExpireRef.current = onExpire }, [onExpire])
+  useEffect(() => { onTickRef.current = onTick }, [onTick])
+
   useEffect(() => {
     setRemaining(durationSeconds)
   }, [durationSeconds])
@@ -20,16 +26,16 @@ export function TimerBar({ durationSeconds, onExpire, onTick, running }: Props) 
       setRemaining(prev => {
         if (prev <= 1) {
           clearInterval(interval)
-          onExpire()
+          onExpireRef.current()
           return 0
         }
         const next = prev - 1
-        onTick?.(next)
+        onTickRef.current?.(next)
         return next
       })
     }, 1000)
     return () => clearInterval(interval)
-  }, [running, onExpire])
+  }, [running]) // only restart the interval when running changes — callbacks via refs
 
   const pct = (remaining / durationSeconds) * 100
   const color = pct > 50 ? '#FFE500' : pct > 25 ? '#FF9F1C' : '#FF4D4D'
