@@ -70,7 +70,7 @@ export function RevealScreen() {
       status: 'playing',
       currentQuestionIndex: nextIndex,
       currentQuestion: { text: nextQ?.text ?? '', category: nextQ?.category ?? '' },
-      [`votes/${nextIndex}`]: null, // wipe any stale votes for the incoming question
+      votes: null, // delete ALL votes — raw per-question votes are no longer needed once tallied
     })
   }
 
