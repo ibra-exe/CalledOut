@@ -90,8 +90,8 @@ export function AboutScreen() {
         rel="noopener noreferrer"
         className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#1A1A1A] text-white font-bold text-sm border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all"
       >
-        <AlienIcon className="w-4 h-4 text-[#FFE500]" />
         Contact Ibra
+        <AlienIcon className="w-4 h-4 text-[#FFE500]" />
       </a>
 
       {/* Footer credit */}
