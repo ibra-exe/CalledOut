@@ -6,6 +6,7 @@ import { LobbyScreen } from './screens/LobbyScreen'
 import { GameScreen } from './screens/GameScreen'
 import { RevealScreen } from './screens/RevealScreen'
 import { StatsScreen } from './screens/StatsScreen'
+import { AboutScreen } from './screens/AboutScreen'
 import { useRoom } from './hooks/useRoom'
 import { useParams } from 'react-router-dom'
 
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/lobby/:code" element={<LobbyScreen />} />
           <Route path="/game/:code" element={<GameRouter />} />
           <Route path="/stats/:code" element={<StatsScreen />} />
+          <Route path="/about" element={<AboutScreen />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
