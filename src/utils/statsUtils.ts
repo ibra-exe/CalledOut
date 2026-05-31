@@ -26,7 +26,7 @@ function buildStats(
   }
 
   for (const entry of Object.values(history)) {
-    const { votes, category } = entry
+    const { votes = {}, category } = entry
     const max = Math.max(0, ...Object.values(votes))
     const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1])
     const top2Ids = sorted.slice(0, 2).map(([id]) => id)
