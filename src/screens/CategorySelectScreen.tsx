@@ -18,6 +18,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
   const [selected, setSelected] = useState<string[]>([])
   const [questionCount, setQuestionCount] = useState(15)
   const [timerSeconds, setTimerSeconds] = useState(15)
+  const [allowRevoting, setAllowRevoting] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const toggleCategory = (id: string) => {
@@ -54,7 +55,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
       currentQuestion: limited[0],
       questionOrder: limited.map((_, i) => i),
       questionHistory,
-      settings: { timerSeconds },
+      settings: { timerSeconds, allowRevoting },
     })
 
     setLoading(false)
@@ -105,6 +106,31 @@ export function CategorySelectScreen({ code, onClose }: Props) {
                 }`}
               >
                 {s}s
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Allow revoting */}
+        <div>
+          <p className="text-white font-bold text-sm mb-1">Allow Revoting</p>
+          <p className="text-gray-500 text-xs mb-3">
+            {allowRevoting
+              ? 'Players can change their vote anytime — round ends on timer only.'
+              : 'First vote locks in — round ends as soon as everyone has voted.'}
+          </p>
+          <div className="flex gap-2">
+            {([{ value: false, label: 'Off' }, { value: true, label: 'On' }] as const).map(({ value, label }) => (
+              <button
+                key={label}
+                onClick={() => setAllowRevoting(value)}
+                className={`flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all ${
+                  allowRevoting === value
+                    ? 'border-[#FFE500] bg-[#FFE500]/10 text-[#FFE500]'
+                    : 'border-white/10 bg-[#1A1A1A] text-gray-400 hover:border-white/20'
+                }`}
+              >
+                {label}
               </button>
             ))}
           </div>

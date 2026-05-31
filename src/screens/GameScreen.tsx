@@ -38,6 +38,7 @@ export function GameScreen() {
   const allVoted = totalExpected > 0 && voteCount >= totalExpected
 
   const timerSeconds = room?.settings?.timerSeconds ?? 15
+  const allowRevoting = room?.settings?.allowRevoting ?? false
 
   useEffect(() => {
     hasAdvanced.current = false // reset guard for new question
@@ -60,8 +61,9 @@ export function GameScreen() {
     if (me?.isKicked) navigate('/')
   }, [me?.isKicked, navigate])
 
-  // Auto-advance when all votes are in
+  // Auto-advance when all votes are in (only when revoting is disabled)
   useEffect(() => {
+    if (allowRevoting) return
     if (!allVoted) return
     if (room?.status === 'playing' && isHost) {
       playAllVotesIn()
@@ -75,6 +77,7 @@ export function GameScreen() {
   useEffect(() => { votesRef.current = votes }, [votes])
 
   const castVote = async (votedFor: string) => {
+    if (!allowRevoting && myVote) return // locked in when revoting is off
     if (myVote === votedFor) return // already selected, no change
     playVoteCast()
     await set(ref(db, `rooms/${code}/votes/${qIndex}/${playerId}`), votedFor)
@@ -170,7 +173,11 @@ export function GameScreen() {
         {/* Progress (shown to all players) */}
         <div className="flex items-center justify-between text-xs text-gray-500 px-1">
           <span>{voteCount}/{totalExpected} voted</span>
-          {myVote && <span className="text-[#FFE500] font-semibold">Your vote is in ✓</span>}
+          {myVote && (
+            <span className="text-[#FFE500] font-semibold">
+              {allowRevoting ? 'Voted — tap to change' : 'Your vote is in ✓'}
+            </span>
+          )}
         </div>
 
         {/* Vote buttons */}
@@ -183,7 +190,7 @@ export function GameScreen() {
                 player={player}
                 playerId={pid}
                 isSelected={myVote === pid}
-                disabled={false}
+                disabled={!allowRevoting && !!myVote}
                 isSelf={pid === playerId}
                 onClick={() => castVote(pid)}
               />

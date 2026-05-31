@@ -2,6 +2,7 @@ export type RoomStatus = 'lobby' | 'category-select' | 'playing' | 'reveal' | 's
 
 export interface RoomSettings {
   timerSeconds: number
+  allowRevoting: boolean
 }
 
 export interface Player {
