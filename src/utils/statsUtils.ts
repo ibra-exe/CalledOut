@@ -66,6 +66,7 @@ export function assignTitles(
     if (pool.length === 0) return
     pool.sort((a, b) => scorer(b) - scorer(a))
     const winner = pool[0]
+    if (scorer(winner) <= 0) return // don't award a title for a zero score
     assigned.add(winner)
     titles.push({ playerId: winner, title, subtitle })
   }
@@ -104,10 +105,17 @@ export function assignTitles(
     p => stats[p].questionsInTop2 > 0 && stats[p].questionsWon < stats[p].questionsInTop2
   )
 
-  // Remaining players get The Mysterious One
+  // Remaining players get a fallback title based on whether they received any votes
   for (const pid of candidates) {
     if (!assigned.has(pid)) {
-      titles.push({ playerId: pid, title: 'The Mysterious One', subtitle: 'Quietly watching, rarely judged' })
+      const neverVoted = stats[pid].totalVotes === 0
+      titles.push({
+        playerId: pid,
+        title: neverVoted ? 'The Forsaken One' : 'The Mysterious One',
+        subtitle: neverVoted
+          ? 'Not a single vote. Not even from themselves.'
+          : 'Quietly watching, rarely judged',
+      })
       assigned.add(pid)
     }
   }

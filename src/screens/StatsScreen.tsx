@@ -19,6 +19,7 @@ const TITLE_EMOJIS: Record<string, string> = {
   'Predictably You': '🔮',
   'The Wildcard': '🃏',
   'The Mysterious One': '🎭',
+  'The Forsaken One': '👻',
 }
 
 export function StatsScreen() {
