@@ -105,9 +105,16 @@ export function HomeScreen() {
         <h1 className="text-5xl font-black text-white mb-2 tracking-tight">
           Called<span className="text-[#FFE500]"> Out</span>
         </h1>
-        <p className="text-gray-400 text-base mt-3 max-w-xs mx-auto">
-          <TypewriterLine text="Rated E for Everyone Gets Exposed." delay={400} speed={80} cursor={false} />
-        </p>
+        {/* Invisible placeholder reserves the full text's height so the typewriter
+            animation never shifts the buttons below it */}
+        <div className="relative mt-3 max-w-xs mx-auto">
+          <p className="text-gray-400 text-base invisible" aria-hidden>
+            Rated E for Everyone Gets Exposed.
+          </p>
+          <p className="text-gray-400 text-base absolute inset-0">
+            <TypewriterLine text="Rated E for Everyone Gets Exposed." delay={400} speed={80} cursor={false} />
+          </p>
+        </div>
       </div>
 
       <div className="w-full max-w-sm flex flex-col gap-4">
