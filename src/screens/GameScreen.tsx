@@ -75,7 +75,6 @@ export function GameScreen() {
   useEffect(() => { votesRef.current = votes }, [votes])
 
   const castVote = async (votedFor: string) => {
-    if (myVote) return
     playVoteCast()
     await set(ref(db, `rooms/${code}/votes/${qIndex}/${playerId}`), votedFor)
   }
@@ -182,9 +181,8 @@ export function GameScreen() {
                 key={pid}
                 player={player}
                 playerId={pid}
-                hasVoted={!!myVote}
                 isSelected={myVote === pid}
-                disabled={!!myVote}
+                disabled={pid === playerId}
                 isSelf={pid === playerId}
                 onClick={() => castVote(pid)}
               />
