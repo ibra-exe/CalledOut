@@ -7,6 +7,7 @@ interface PlayerStats {
   questionsWon: number
   questionsInTop2: number
   questionsWithVotes: number
+  selfVotes: number
 }
 
 function buildStats(
@@ -22,11 +23,12 @@ function buildStats(
       questionsWon: 0,
       questionsInTop2: 0,
       questionsWithVotes: 0,
+      selfVotes: 0,
     }
   }
 
   for (const entry of Object.values(history)) {
-    const { votes = {}, category } = entry
+    const { votes = {}, selfVotes = {}, category } = entry
     const max = Math.max(0, ...Object.values(votes))
     const sorted = Object.entries(votes).sort((a, b) => b[1] - a[1])
     const top2Ids = sorted.slice(0, 2).map(([id]) => id)
@@ -36,6 +38,7 @@ function buildStats(
       stats[pid].totalVotes += v
       stats[pid].votesPerQuestion.push(v)
       stats[pid].categoryVotes[category] = (stats[pid].categoryVotes[category] ?? 0) + v
+      stats[pid].selfVotes += selfVotes[pid] ?? 0
       if (v > 0) stats[pid].questionsWithVotes++
       if (v === max && max > 0) stats[pid].questionsWon++
       if (top2Ids.includes(pid) && v > 0) stats[pid].questionsInTop2++
@@ -85,6 +88,13 @@ const TITLE_DEFS: TitleDef[] = [
     score: s => s.questionsWithVotes,
     eligible: (s, ctx) => ctx.totalQuestions > 0 && s.questionsWithVotes >= Math.ceil(ctx.totalQuestions / 2),
     subtitle: (s, ctx) => `Called out in ${s.questionsWithVotes} of ${ctx.totalQuestions} rounds`,
+  },
+  {
+    title: 'Their Own Biggest Fan',
+    score: s => s.selfVotes,
+    // Most of the votes they got were cast by themselves.
+    eligible: s => s.selfVotes >= 1 && s.selfVotes * 2 > s.totalVotes,
+    subtitle: s => `${s.selfVotes} of their ${s.totalVotes} vote${s.totalVotes === 1 ? '' : 's'} were self-inflicted`,
   },
   // ── Category champions (one per category) ──
   {
@@ -184,7 +194,7 @@ export function assignTitles(
     const neverVoted = stats[pid].totalVotes === 0
     titles.push({
       playerId: pid,
-      title: neverVoted ? 'The Forsaken One' : 'The Mysterious One',
+      title: neverVoted ? 'The Forgotten One' : 'The Mysterious One',
       subtitle: neverVoted
         ? 'Not a single vote. Not even from themselves.'
         : 'Flew under the radar all game',

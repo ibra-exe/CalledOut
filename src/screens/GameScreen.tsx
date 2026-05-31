@@ -10,7 +10,7 @@ import { QuestionCard } from '../components/QuestionCard'
 import { VoteButton } from '../components/VoteButton'
 import { TimerBar } from '../components/TimerBar'
 import { ExitModal } from '../components/ExitModal'
-import { tallyVotes } from '../utils/voteUtils'
+import { tallyVotes, tallySelfVotes } from '../utils/voteUtils'
 import {
   playQuestionReveal, playGameStarting, playVoteCast,
   playTimerTick, playTimerExpire, playAllVotesIn,
@@ -88,10 +88,12 @@ export function GameScreen() {
     if (hasAdvanced.current) return
     hasAdvanced.current = true
     const tally = tallyVotes(votesRef.current)
+    const selfVotes = tallySelfVotes(votesRef.current)
     // Single atomic update: no intermediate Firebase state
     await update(ref(db, `rooms/${code}`), {
       status: 'reveal',
       [`questionHistory/${qIndex}/votes`]: tally,
+      [`questionHistory/${qIndex}/selfVotes`]: selfVotes,
     })
   }, [isHost, room?.status, code, qIndex])
 

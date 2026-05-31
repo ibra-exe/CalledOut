@@ -22,8 +22,9 @@ const TITLE_EMOJIS: Record<string, string> = {
   'The Legend': '🏆',
   'Captain Cringe': '😬',
   'The Daredevil': '🌶️',
+  'Their Own Biggest Fan': '🪞',
   'The Mysterious One': '🎭',
-  'The Forsaken One': '👻',
+  'The Forgotten One': '👻',
 }
 
 export function StatsScreen() {

@@ -24,6 +24,7 @@ export interface QuestionHistoryEntry {
   text: string
   category: string
   votes: Record<string, number>
+  selfVotes?: Record<string, number>
 }
 
 export interface Room {
