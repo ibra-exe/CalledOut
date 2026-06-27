@@ -5,7 +5,7 @@ import { db } from '../firebase'
 import { CATEGORIES } from '../questions'
 import {
   seedQuestionBankIfEmpty, reseedQuestionBank,
-  adminUpsertQuestion, adminDeleteQuestion, bankToQuestions, genQuestionId,
+  adminUpsertQuestion, adminDeleteQuestion, adminSetArConfirmed, bankToQuestions, genQuestionId,
 } from '../questionBank'
 import type { Question } from '../types'
 
@@ -24,6 +24,7 @@ export function AdminScreen() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [filter, setFilter] = useState<string>('all')
+  const [unconfirmedOnly, setUnconfirmedOnly] = useState(false)
   const [search, setSearch] = useState('')
   const [editing, setEditing] = useState<Question | null>(null)
   const [origLoc, setOrigLoc] = useState<{ category: string; id: string } | null>(null)
@@ -61,18 +62,22 @@ export function AdminScreen() {
     return c
   }, [questions])
 
+  const unconfirmedCount = useMemo(() => questions.filter(q => !q.arConfirmed).length, [questions])
+
   const filtered = useMemo(() => {
     let qs = questions
     if (filter !== 'all') qs = qs.filter(q => q.category === filter)
+    if (unconfirmedOnly) qs = qs.filter(q => !q.arConfirmed)
     const s = search.trim().toLowerCase()
     if (s) qs = qs.filter(q => q.en.toLowerCase().includes(s) || q.ar.includes(search.trim()))
     return [...qs].sort((a, b) => a.category.localeCompare(b.category) || a.id.localeCompare(b.id))
-  }, [questions, filter, search])
+  }, [questions, filter, unconfirmedOnly, search])
 
   const startAdd = () => {
     setOrigLoc(null)
-    setEditing({ id: '', en: '', ar: '', category: filter !== 'all' ? filter : 'spicy' })
+    setEditing({ id: '', en: '', ar: '', category: filter !== 'all' ? filter : 'spicy', arConfirmed: false })
   }
+  const toggleConfirmed = (q: Question) => adminSetArConfirmed(q.category, q.id, !q.arConfirmed)
   const startEdit = (q: Question) => {
     setOrigLoc({ category: q.category, id: q.id })
     setEditing({ ...q })
@@ -162,6 +167,12 @@ export function AdminScreen() {
         {/* Category filter */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
           <button
+            onClick={() => setUnconfirmedOnly(v => !v)}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border ${unconfirmedOnly ? 'bg-[#FF9F1C] text-[#0F0F0F] border-[#FF9F1C]' : 'bg-[#1A1A1A] text-[#FF9F1C] border-[#FF9F1C]/40'}`}
+          >
+            ⚠ Unconfirmed ({unconfirmedCount})
+          </button>
+          <button
             onClick={() => setFilter('all')}
             className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border ${filter === 'all' ? 'bg-[#FFE500] text-[#0F0F0F] border-[#FFE500]' : 'bg-[#1A1A1A] text-gray-400 border-white/10'}`}
           >
@@ -207,6 +218,16 @@ export function AdminScreen() {
               </div>
               <p className="text-white text-sm">{q.en}</p>
               <p className="text-gray-400 text-sm mt-1" dir="rtl">{q.ar || <span className="text-[#FF9F1C] italic">— no Arabic —</span>}</p>
+              <button
+                onClick={() => toggleConfirmed(q)}
+                className={`mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  q.arConfirmed
+                    ? 'bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/40'
+                    : 'bg-white/5 text-gray-500 border border-white/10'
+                }`}
+              >
+                {q.arConfirmed ? '✓ Arabic confirmed' : 'Arabic unconfirmed'}
+              </button>
             </div>
           ))}
         </div>
@@ -261,8 +282,18 @@ export function AdminScreen() {
               rows={2}
               dir="rtl"
               placeholder="مين فينا…"
-              className="w-full mt-1 mb-5 py-3 px-3 bg-[#0F0F0F] rounded-xl text-white text-sm border border-white/10 focus:border-[#FFE500] outline-none placeholder-gray-600 resize-none"
+              className="w-full mt-1 mb-4 py-3 px-3 bg-[#0F0F0F] rounded-xl text-white text-sm border border-white/10 focus:border-[#FFE500] outline-none placeholder-gray-600 resize-none"
             />
+
+            <button
+              onClick={() => setEditing({ ...editing, arConfirmed: !editing.arConfirmed })}
+              className="w-full flex items-center justify-between p-3 bg-[#0F0F0F] rounded-xl mb-5 border border-white/10"
+            >
+              <span className="text-white text-sm font-semibold">Arabic confirmed</span>
+              <span className={`relative w-12 h-6 rounded-full transition-colors ${editing.arConfirmed ? 'bg-[#4CAF50]' : 'bg-white/20'}`}>
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${editing.arConfirmed ? 'translate-x-6' : 'translate-x-0'}`} />
+              </span>
+            </button>
 
             <div className="flex gap-3">
               <button

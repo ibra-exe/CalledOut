@@ -21,6 +21,7 @@ export interface Question {
   en: string
   ar: string
   category: string
+  arConfirmed?: boolean // admin has verified the Arabic translation
 }
 
 // The active question stored on the room during play (display shape)

@@ -1,13 +1,13 @@
-import { ref, get, set, remove } from 'firebase/database'
+import { ref, get, set, update, remove } from 'firebase/database'
 import { db } from './firebase'
 import { QUESTIONS, CATEGORIES } from './questions'
 import type { Question } from './types'
 
-// Firebase layout: questionBank/{category}/{id} = { en, ar }
+// Firebase layout: questionBank/{category}/{id} = { en, ar, arConfirmed? }
 // The static QUESTIONS bundle is the default bank. The admin panel can seed an
 // editable copy into Firebase; once seeded, games read from there instead.
 
-type BankNode = Record<string, { en: string; ar: string }>
+type BankNode = Record<string, { en: string; ar: string; arConfirmed?: boolean }>
 type Bank = Record<string, BankNode>
 
 const ALL_CATEGORY_IDS = CATEGORIES.map(c => c.id)
@@ -66,11 +66,18 @@ export async function fetchQuestionsForGame(categoryIds: string[]): Promise<Ques
 
 // ── Admin CRUD ──
 export function adminUpsertQuestion(q: Question): Promise<void> {
-  return set(ref(db, `questionBank/${q.category}/${q.id}`), { en: q.en, ar: q.ar })
+  return set(ref(db, `questionBank/${q.category}/${q.id}`), {
+    en: q.en, ar: q.ar, arConfirmed: q.arConfirmed ?? false,
+  })
 }
 
 export function adminDeleteQuestion(category: string, id: string): Promise<void> {
   return remove(ref(db, `questionBank/${category}/${id}`))
+}
+
+// Flip just the "Arabic confirmed" flag without touching the text.
+export function adminSetArConfirmed(category: string, id: string, value: boolean): Promise<void> {
+  return update(ref(db, `questionBank/${category}/${id}`), { arConfirmed: value })
 }
 
 // Flatten a Firebase bank snapshot into a Question[] (for the admin list).
@@ -80,7 +87,7 @@ export function bankToQuestions(bank: Bank | null): Question[] {
   for (const [category, node] of Object.entries(bank)) {
     if (!node) continue
     for (const [id, q] of Object.entries(node)) {
-      if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? '', category })
+      if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? '', category, arConfirmed: !!q.arConfirmed })
     }
   }
   return out
