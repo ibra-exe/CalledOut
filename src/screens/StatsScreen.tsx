@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
-// useState kept for playAgainVotes
+import { useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ref, update, remove } from 'firebase/database'
+import { ref, update, remove, set } from 'firebase/database'
 import { db } from '../firebase'
 import { useRoom } from '../hooks/useRoom'
 import { usePlayers } from '../hooks/usePlayers'
@@ -36,7 +35,6 @@ export function StatsScreen() {
   const { room, notFound } = useRoom(code)
   const { players } = usePlayers(code)
   const playerId = getOrCreatePlayerId()
-  const [playAgainVotes, setPlayAgainVotes] = useState<Set<string>>(new Set())
   // Reveal immediately once data arrives — no artificial delay
   const revealed = !!room && Object.keys(players).length > 0
 
@@ -65,16 +63,17 @@ export function StatsScreen() {
   const history = room?.questionHistory ?? {}
   const titles = activePlayers.length > 0 ? assignTitles(activePlayers.map(([id]) => id), history) : []
 
-  const togglePlayAgain = () => {
-    setPlayAgainVotes(prev => {
-      const next = new Set(prev)
-      if (next.has(playerId)) next.delete(playerId)
-      else next.add(playerId)
-      return next
-    })
-  }
+  // Play-again votes are synced via Firebase so every player sees the shared count
+  const activeIds = new Set(activePlayers.map(([id]) => id))
+  const playAgainRaw = room?.playAgain ?? {}
+  const playAgainCount = Object.keys(playAgainRaw).filter(id => playAgainRaw[id] && activeIds.has(id)).length
+  const iWantPlayAgain = !!playAgainRaw[playerId]
+  const majorityWantsPlayAgain = activePlayers.length > 0 && playAgainCount >= Math.ceil(activePlayers.length / 2)
 
-  const majorityWantsPlayAgain = playAgainVotes.size >= Math.ceil(activePlayers.length / 2)
+  const togglePlayAgain = async () => {
+    if (iWantPlayAgain) await remove(ref(db, `rooms/${code}/playAgain/${playerId}`))
+    else await set(ref(db, `rooms/${code}/playAgain/${playerId}`), true)
+  }
 
   const restartGame = async () => {
     if (!isHost) return
@@ -85,6 +84,7 @@ export function StatsScreen() {
       questionOrder: [],
       votes: {},
       questionHistory: {},
+      playAgain: null, // clear votes for the next round
     })
     navigate(`/lobby/${code}`)
   }
@@ -138,17 +138,22 @@ export function StatsScreen() {
         <p className="text-white font-bold mb-3 text-sm">{tr('wantPlayAgain')}</p>
         <button
           onClick={togglePlayAgain}
-          className={`w-full py-3 rounded-xl font-semibold text-sm transition-all ${playAgainVotes.has(playerId) ? 'bg-[#FFE500]/20 text-[#FFE500] border border-[#FFE500]' : 'bg-white/5 text-gray-400 border border-white/10'}`}
+          className={`w-full py-3 rounded-xl font-semibold text-sm transition-all ${iWantPlayAgain ? 'bg-[#FFE500]/20 text-[#FFE500] border border-[#FFE500]' : 'bg-white/5 text-gray-400 border border-white/10'}`}
         >
-          {playAgainVotes.has(playerId) ? `✓ ${tr('iWantPlayAgain')}` : tr('playAgainQ')}
+          {iWantPlayAgain ? `✓ ${tr('iWantPlayAgain')}` : tr('playAgainQ')}
         </button>
         <p className="text-gray-600 text-xs text-center mt-2">
-          {tr('playersWantRoundTpl', { n: playAgainVotes.size, m: activePlayers.length })}
+          {tr('playersWantRoundTpl', { n: playAgainCount, m: activePlayers.length })}
         </p>
-        {isHost && majorityWantsPlayAgain && (
+        {/* Host can always restart; the button lights up once the group is on board */}
+        {isHost && (
           <button
             onClick={restartGame}
-            className="mt-3 w-full py-3 rounded-xl bg-[#FFE500] text-[#0F0F0F] font-black text-sm hover:bg-yellow-300 active:scale-[0.97] transition-all"
+            className={`mt-3 w-full py-3 rounded-xl font-black text-sm active:scale-[0.97] transition-all ${
+              majorityWantsPlayAgain
+                ? 'bg-[#FFE500] text-[#0F0F0F] hover:bg-yellow-300'
+                : 'bg-[#FFE500]/15 text-[#FFE500] border border-[#FFE500]/30 hover:bg-[#FFE500]/25'
+            }`}
           >
             {tr('restartGame')}
           </button>

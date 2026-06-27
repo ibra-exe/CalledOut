@@ -41,6 +41,7 @@ export interface Room {
   players: Record<string, Player>
   votes: Record<string, Record<string, string>>
   questionHistory: Record<string, QuestionHistoryEntry>
+  playAgain?: Record<string, boolean>
 }
 
 export type FontOption = 'font-sans' | 'font-poppins' | 'font-lobster' | 'font-mono'
