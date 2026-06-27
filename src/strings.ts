@@ -192,7 +192,7 @@ const ar: Record<string, string> = {
   "gameAlreadyStarted": "اللعبة بدأت من زمان.",
   "qrReadFail": "ما قدرنا نقرأ الـ QR من الصورة.",
   "lobby": "اللوبي",
-  "invite": "عزّم",
+  "invite": "اعزم",
   "hide": "إخفاء",
   "yourProfile": "بروفايلك",
   "nameFallback": "اسمك",
