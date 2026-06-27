@@ -29,6 +29,7 @@ export function AdminScreen() {
   const [loadError, setLoadError] = useState(false)
   const [filter, setFilter] = useState<string>('all')
   const [unconfirmedOnly, setUnconfirmedOnly] = useState(false)
+  const [userSuggestedOnly, setUserSuggestedOnly] = useState(false)
   const [search, setSearch] = useState('')
   const [editing, setEditing] = useState<Question | null>(null)
   const [origLoc, setOrigLoc] = useState<{ category: string; id: string } | null>(null)
@@ -74,6 +75,7 @@ export function AdminScreen() {
   }, [questions])
 
   const unconfirmedCount = useMemo(() => questions.filter(q => !q.arConfirmed).length, [questions])
+  const userSuggestedCount = useMemo(() => questions.filter(q => q.userSuggested).length, [questions])
   const pendingCount = useMemo(() => suggestions.filter(s => s.status === 'pending').length, [suggestions])
   const inboxList = useMemo(() => suggestions.filter(s => s.status === inboxTab), [suggestions, inboxTab])
 
@@ -81,10 +83,11 @@ export function AdminScreen() {
     let qs = questions
     if (filter !== 'all') qs = qs.filter(q => q.category === filter)
     if (unconfirmedOnly) qs = qs.filter(q => !q.arConfirmed)
+    if (userSuggestedOnly) qs = qs.filter(q => q.userSuggested)
     const s = search.trim().toLowerCase()
     if (s) qs = qs.filter(q => q.en.toLowerCase().includes(s) || q.ar.includes(search.trim()))
     return [...qs].sort((a, b) => a.category.localeCompare(b.category) || a.id.localeCompare(b.id))
-  }, [questions, filter, unconfirmedOnly, search])
+  }, [questions, filter, unconfirmedOnly, userSuggestedOnly, search])
 
   // ── question CRUD ──
   const startAdd = () => {
@@ -182,6 +185,7 @@ export function AdminScreen() {
             />
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
               <button onClick={() => setUnconfirmedOnly(v => !v)} className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border ${unconfirmedOnly ? 'bg-[#FF9F1C] text-[#0F0F0F] border-[#FF9F1C]' : 'bg-[#1A1A1A] text-[#FF9F1C] border-[#FF9F1C]/40'}`}>⚠ Unconfirmed ({unconfirmedCount})</button>
+              <button onClick={() => setUserSuggestedOnly(v => !v)} className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border ${userSuggestedOnly ? 'bg-[#9C7BFF] text-[#0F0F0F] border-[#9C7BFF]' : 'bg-[#1A1A1A] text-[#B79CFF] border-[#9C7BFF]/40'}`}>✨ User Suggested ({userSuggestedCount})</button>
               <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border ${filter === 'all' ? 'bg-[#FFE500] text-[#0F0F0F] border-[#FFE500]' : 'bg-[#1A1A1A] text-gray-400 border-white/10'}`}>All ({questions.length})</button>
               {CATEGORIES.map(c => (
                 <button key={c.id} onClick={() => setFilter(c.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border ${filter === c.id ? 'bg-[#FFE500] text-[#0F0F0F] border-[#FFE500]' : 'bg-[#1A1A1A] text-gray-400 border-white/10'}`}>{c.emoji} {c.label} ({counts[c.id] ?? 0})</button>
