@@ -8,28 +8,31 @@ import { usePlayers } from '../hooks/usePlayers'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { assignTitles } from '../utils/statsUtils'
 import { playGameOver, playTitleAssigned } from '../utils/soundUtils'
+import { useT } from '../i18n'
 
+// Keyed by titleId (see statsUtils TITLE_DEFS)
 const TITLE_EMOJIS: Record<string, string> = {
-  'The Main Character': '🌟',
-  'The Sleeper': '😴',
-  'The Wildcard': '🃏',
-  'Predictably You': '🔮',
-  'The Menace': '🔥',
-  'Class Clown': '😂',
-  'The Philosopher': '🧠',
-  'Certified Chaotic': '💀',
-  'The Hopeless Romantic': '💘',
-  'The Legend': '🏆',
-  'Captain Cringe': '😬',
-  'The Daredevil': '🌶️',
-  'Their Own Biggest Fan': '🪞',
-  'The Mysterious One': '🎭',
-  'The Forgotten One': '👻',
+  main_character: '🌟',
+  sleeper: '😴',
+  wildcard: '🃏',
+  predictably: '🔮',
+  menace: '🔥',
+  class_clown: '😂',
+  philosopher: '🧠',
+  chaotic: '💀',
+  romantic: '💘',
+  legend: '🏆',
+  cringe: '😬',
+  daredevil: '🌶️',
+  their_own_fan: '🪞',
+  mysterious: '🎭',
+  forgotten: '👻',
 }
 
 export function StatsScreen() {
   const { code = '' } = useParams<{ code: string }>()
   const navigate = useNavigate()
+  const tr = useT()
   const { room, notFound } = useRoom(code)
   const { players } = usePlayers(code)
   const playerId = getOrCreatePlayerId()
@@ -92,14 +95,14 @@ export function StatsScreen() {
     navigate('/')
   }
 
-  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">Loading...</div>
+  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-4 pt-10 pb-10">
       <div className="text-center mb-8">
         <div className="text-5xl mb-3">🎤</div>
-        <h1 className="text-3xl font-black text-white">The Verdict Is In</h1>
-        <p className="text-gray-500 text-sm mt-2">Here's how your group was called out</p>
+        <h1 className="text-3xl font-black text-white">{tr('verdictIn')}</h1>
+        <p className="text-gray-500 text-sm mt-2">{tr('howCalledOut')}</p>
       </div>
 
       {/* Title cards */}
@@ -107,7 +110,7 @@ export function StatsScreen() {
         {titles.map((titleEntry, i) => {
           const player = players[titleEntry.playerId]
           if (!player) return null
-          const emoji = TITLE_EMOJIS[titleEntry.title] ?? '🏷️'
+          const emoji = TITLE_EMOJIS[titleEntry.titleId] ?? '🏷️'
           return (
             <div
               key={titleEntry.playerId}
@@ -122,8 +125,8 @@ export function StatsScreen() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className={`font-black text-white text-base truncate ${player.font}`}>{player.name}</p>
-                <p className="text-[#FFE500] font-bold text-sm">{emoji} {titleEntry.title}</p>
-                <p className="text-gray-500 text-xs">{titleEntry.subtitle}</p>
+                <p className="text-[#FFE500] font-bold text-sm">{emoji} {tr(`title_${titleEntry.titleId}`)}</p>
+                <p className="text-gray-500 text-xs">{tr(`sub_${titleEntry.titleId}`, titleEntry.params)}</p>
               </div>
             </div>
           )
@@ -132,22 +135,22 @@ export function StatsScreen() {
 
       {/* Play again votes */}
       <div className="bg-[#1A1A1A] rounded-2xl p-4 mb-4">
-        <p className="text-white font-bold mb-3 text-sm">Want to play again?</p>
+        <p className="text-white font-bold mb-3 text-sm">{tr('wantPlayAgain')}</p>
         <button
           onClick={togglePlayAgain}
           className={`w-full py-3 rounded-xl font-semibold text-sm transition-all ${playAgainVotes.has(playerId) ? 'bg-[#FFE500]/20 text-[#FFE500] border border-[#FFE500]' : 'bg-white/5 text-gray-400 border border-white/10'}`}
         >
-          {playAgainVotes.has(playerId) ? '✓ I want to play again' : 'Play Again?'}
+          {playAgainVotes.has(playerId) ? `✓ ${tr('iWantPlayAgain')}` : tr('playAgainQ')}
         </button>
         <p className="text-gray-600 text-xs text-center mt-2">
-          {playAgainVotes.size}/{activePlayers.length} players want another round
+          {tr('playersWantRoundTpl', { n: playAgainVotes.size, m: activePlayers.length })}
         </p>
         {isHost && majorityWantsPlayAgain && (
           <button
             onClick={restartGame}
             className="mt-3 w-full py-3 rounded-xl bg-[#FFE500] text-[#0F0F0F] font-black text-sm hover:bg-yellow-300 active:scale-[0.97] transition-all"
           >
-            Restart Game 🔄
+            {tr('restartGame')}
           </button>
         )}
       </div>
@@ -158,7 +161,7 @@ export function StatsScreen() {
           onClick={endGame}
           className="w-full py-4 rounded-2xl bg-[#FF4D4D]/10 text-[#FF4D4D] font-bold text-sm border border-[#FF4D4D]/20 hover:bg-[#FF4D4D]/20 active:scale-[0.97] transition-all"
         >
-          End Game
+          {tr('endGame')}
         </button>
       )}
 
@@ -167,7 +170,7 @@ export function StatsScreen() {
           onClick={() => navigate('/')}
           className="w-full py-4 rounded-2xl bg-white/5 text-gray-400 font-bold text-sm border border-white/10 hover:bg-white/10 active:scale-[0.97] transition-all"
         >
-          Leave Game
+          {tr('leaveGame')}
         </button>
       )}
     </div>

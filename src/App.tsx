@@ -9,6 +9,8 @@ import { StatsScreen } from './screens/StatsScreen'
 import { AboutScreen } from './screens/AboutScreen'
 import { useRoom } from './hooks/useRoom'
 import { useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { applyDir, useLang } from './i18n'
 
 // Smart game router: renders game or reveal based on room status
 function GameRouter() {
@@ -24,6 +26,12 @@ function GameRouter() {
 }
 
 export default function App() {
+  // Keep <html dir/lang> in sync with the selected language (RTL for Arabic)
+  const lang = useLang()
+  useEffect(() => {
+    applyDir(lang)
+  }, [lang])
+
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="font-sans antialiased">

@@ -5,9 +5,11 @@ import { db } from '../firebase'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { getSavedProfile } from '../utils/profileUtils'
 import { QRScanner } from '../components/QRScanner'
+import { useT } from '../i18n'
 
 export function JoinRoomScreen() {
   const navigate = useNavigate()
+  const tr = useT()
   const { code: urlCode } = useParams<{ code?: string }>()
   const [code, setCode] = useState(urlCode ?? '')
   const [error, setError] = useState('')
@@ -21,18 +23,18 @@ export function JoinRoomScreen() {
 
   const joinRoom = async (roomCode: string) => {
     const clean = roomCode.trim().toUpperCase()
-    if (clean.length !== 6) { setError('Room code must be 6 characters'); return }
+    if (clean.length !== 6) { setError(tr('codeMustBe6')); return }
     setLoading(true)
     setError('')
     const snap = await get(ref(db, `rooms/${clean}`))
     if (!snap.exists()) {
-      setError('Room not found. Check the code and try again.')
+      setError(tr('roomNotFoundRetry'))
       setLoading(false)
       return
     }
     const room = snap.val()
     if (room.status !== 'lobby') {
-      setError('This game has already started.')
+      setError(tr('gameAlreadyStarted'))
       setLoading(false)
       return
     }
@@ -65,7 +67,7 @@ export function JoinRoomScreen() {
       setCode(scannedCode)
       await joinRoom(scannedCode)
     } catch {
-      setError('Could not read QR code from image.')
+      setError(tr('qrReadFail'))
     }
   }
 
@@ -83,13 +85,13 @@ export function JoinRoomScreen() {
       )}
 
       <button onClick={() => navigate('/')} className="text-gray-400 text-sm mb-8 self-start">
-        ← Back
+        ← {tr('back')}
       </button>
 
       <div className="flex-1 flex flex-col justify-center gap-8 max-w-sm mx-auto w-full">
         <div className="text-center">
-          <h1 className="text-3xl font-black text-white mb-2">Join a Room</h1>
-          <p className="text-gray-400 text-sm">Enter the room code or scan the QR</p>
+          <h1 className="text-3xl font-black text-white mb-2">{tr('joinARoom')}</h1>
+          <p className="text-gray-400 text-sm">{tr('enterCodeOrScan')}</p>
         </div>
 
         {/* Manual input */}
@@ -98,7 +100,8 @@ export function JoinRoomScreen() {
             type="text"
             value={code}
             onChange={e => setCode(e.target.value.toUpperCase().slice(0, 6))}
-            placeholder="ENTER CODE"
+            placeholder={tr('enterCode')}
+            dir="ltr"
             className="w-full py-4 px-5 bg-[#1A1A1A] rounded-2xl text-white text-2xl font-black text-center tracking-[0.3em] border-2 border-transparent focus:border-[#FFE500] outline-none placeholder-gray-600 uppercase"
             maxLength={6}
             onKeyDown={e => e.key === 'Enter' && joinRoom(code)}
@@ -109,13 +112,13 @@ export function JoinRoomScreen() {
             disabled={loading}
             className="w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all disabled:opacity-50"
           >
-            {loading ? 'Joining...' : 'Join Room'}
+            {loading ? tr('joining') : tr('joinRoom')}
           </button>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="text-gray-600 text-sm">or</span>
+          <span className="text-gray-600 text-sm">{tr('or')}</span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
@@ -125,13 +128,13 @@ export function JoinRoomScreen() {
             onClick={() => setShowScanner(true)}
             className="flex-1 py-4 rounded-2xl bg-[#1A1A1A] border border-white/10 text-white font-semibold text-sm hover:bg-white/5 active:scale-[0.97] transition-all min-h-[56px]"
           >
-            📷 Scan QR
+            📷 {tr('scanQR')}
           </button>
           <button
             onClick={() => fileRef.current?.click()}
             className="flex-1 py-4 rounded-2xl bg-[#1A1A1A] border border-white/10 text-white font-semibold text-sm hover:bg-white/5 active:scale-[0.97] transition-all min-h-[56px]"
           >
-            🖼 Upload QR
+            🖼 {tr('uploadQR')}
           </button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
           <div id="file-qr-reader" className="hidden" />

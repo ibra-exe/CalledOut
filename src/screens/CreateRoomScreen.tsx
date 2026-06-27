@@ -5,9 +5,11 @@ import { db } from '../firebase'
 import { generateCode, getOrCreatePlayerId } from '../utils/roomUtils'
 import { getSavedProfile } from '../utils/profileUtils'
 import { QRDisplay } from '../components/QRDisplay'
+import { useT } from '../i18n'
 
 export function CreateRoomScreen() {
   const navigate = useNavigate()
+  const tr = useT()
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -23,7 +25,7 @@ export function CreateRoomScreen() {
         categories: [],
         questionOrder: [],
         createdAt: Date.now(),
-        settings: { timerSeconds: 30, autoAdvance: true },
+        settings: { timerSeconds: 15, allowRevoting: false },
         players: {},
         votes: {},
         questionHistory: {},
@@ -49,7 +51,7 @@ export function CreateRoomScreen() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center">
-        <div className="text-white text-lg font-semibold animate-pulse">Creating room...</div>
+        <div className="text-white text-lg font-semibold animate-pulse">{tr('creatingRoom')}</div>
       </div>
     )
   }
@@ -59,13 +61,13 @@ export function CreateRoomScreen() {
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-6 py-12">
       <button onClick={() => navigate('/')} className="text-gray-400 text-sm mb-8 self-start">
-        ← Back
+        ← {tr('back')}
       </button>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <div className="text-center">
-          <h1 className="text-3xl font-black text-white mb-2">Room Created!</h1>
-          <p className="text-gray-400 text-sm">Share the code or QR with your friends</p>
+          <h1 className="text-3xl font-black text-white mb-2">{tr('roomCreated')}</h1>
+          <p className="text-gray-400 text-sm">{tr('shareCode')}</p>
         </div>
 
         <QRDisplay code={code} joinUrl={joinUrl} />
@@ -74,7 +76,7 @@ export function CreateRoomScreen() {
           onClick={() => navigate(`/lobby/${code}`)}
           className="w-full max-w-sm py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all"
         >
-          Go to Lobby →
+          {tr('goToLobby')} →
         </button>
       </div>
     </div>

@@ -54,89 +54,58 @@ interface TitleContext {
 }
 
 interface TitleDef {
-  title: string
+  // Stable id — maps to i18n keys `title_<id>` and `sub_<id>`.
+  id: string
   // Raw metric this title rewards (higher = stronger fit). 0 means "not applicable".
   score: (s: PlayerStats) => number
   // Optional gate — player must qualify to even be considered for this title.
   eligible?: (s: PlayerStats, ctx: TitleContext) => boolean
-  // Subtitle can adapt to the winner's actual numbers.
-  subtitle: (s: PlayerStats, ctx: TitleContext) => string
+  // Numeric params injected into the localized subtitle template (e.g. {n}, {m}).
+  params?: (s: PlayerStats, ctx: TitleContext) => Record<string, number>
 }
 
 // Each category maps to a flavorful title so no category's votes are ever wasted.
 const TITLE_DEFS: TitleDef[] = [
   // ── General voting patterns ──
   {
-    title: 'The Main Character',
+    id: 'main_character',
     score: s => s.totalVotes,
-    subtitle: s => `Most voted overall — ${s.totalVotes} vote${s.totalVotes === 1 ? '' : 's'}`,
+    params: s => ({ n: s.totalVotes }),
   },
   {
-    title: 'The Sleeper',
+    id: 'sleeper',
     score: s => s.questionsWon,
     eligible: (s, ctx) => s.questionsWon >= 1 && s.totalVotes < ctx.avgTotalVotes,
-    subtitle: s => `Quiet overall, but stole ${s.questionsWon} round${s.questionsWon === 1 ? '' : 's'} outright`,
+    params: s => ({ n: s.questionsWon }),
   },
   {
-    title: 'The Wildcard',
+    id: 'wildcard',
     score: s => s.questionsInTop2,
     eligible: s => s.questionsInTop2 > 0 && s.questionsWon < s.questionsInTop2,
-    subtitle: s => `In the mix for ${s.questionsInTop2} round${s.questionsInTop2 === 1 ? '' : 's'}, rarely the clear pick`,
+    params: s => ({ n: s.questionsInTop2 }),
   },
   {
-    title: 'Predictably You',
+    id: 'predictably',
     score: s => s.questionsWithVotes,
     eligible: (s, ctx) => ctx.totalQuestions > 0 && s.questionsWithVotes >= Math.ceil(ctx.totalQuestions / 2),
-    subtitle: (s, ctx) => `Called out in ${s.questionsWithVotes} of ${ctx.totalQuestions} rounds`,
+    params: (s, ctx) => ({ n: s.questionsWithVotes, m: ctx.totalQuestions }),
   },
   {
-    title: 'Their Own Biggest Fan',
+    id: 'their_own_fan',
     score: s => s.selfVotes,
     // Most of the votes they got were cast by themselves.
     eligible: s => s.selfVotes >= 1 && s.selfVotes * 2 > s.totalVotes,
-    subtitle: s => `${s.selfVotes} of their ${s.totalVotes} vote${s.totalVotes === 1 ? '' : 's'} were self-inflicted`,
+    params: s => ({ n: s.selfVotes, m: s.totalVotes }),
   },
   // ── Category champions (one per category) ──
-  {
-    title: 'The Menace',
-    score: s => s.categoryVotes['spicy'] ?? 0,
-    subtitle: () => 'Trouble seems to follow you everywhere',
-  },
-  {
-    title: 'Class Clown',
-    score: s => s.categoryVotes['funny'] ?? 0,
-    subtitle: () => "The group's certified comedian",
-  },
-  {
-    title: 'The Philosopher',
-    score: s => s.categoryVotes['deep'] ?? 0,
-    subtitle: () => 'The one everyone calls deep',
-  },
-  {
-    title: 'Certified Chaotic',
-    score: s => s.categoryVotes['chaotic'] ?? 0,
-    subtitle: () => 'Reigning champion of pure chaos',
-  },
-  {
-    title: 'The Hopeless Romantic',
-    score: s => s.categoryVotes['romantic'] ?? 0,
-    subtitle: () => 'Your name came up every time love did',
-  },
-  {
-    title: 'The Legend',
-    score: s => s.categoryVotes['achievements'] ?? 0,
-    subtitle: () => 'Built different — the group MVP',
-  },
-  {
-    title: 'Captain Cringe',
-    score: s => s.categoryVotes['awkward'] ?? 0,
-    subtitle: () => 'Master of the unforgettable awkward moment',
-  },
-  {
-    title: 'The Daredevil',
-    score: s => s.categoryVotes['bold'] ?? 0,
-    subtitle: () => 'No dare too wild, no line uncrossed',
-  },
+  { id: 'menace', score: s => s.categoryVotes['spicy'] ?? 0 },
+  { id: 'class_clown', score: s => s.categoryVotes['funny'] ?? 0 },
+  { id: 'philosopher', score: s => s.categoryVotes['deep'] ?? 0 },
+  { id: 'chaotic', score: s => s.categoryVotes['chaotic'] ?? 0 },
+  { id: 'romantic', score: s => s.categoryVotes['romantic'] ?? 0 },
+  { id: 'legend', score: s => s.categoryVotes['achievements'] ?? 0 },
+  { id: 'cringe', score: s => s.categoryVotes['awkward'] ?? 0 },
+  { id: 'daredevil', score: s => s.categoryVotes['bold'] ?? 0 },
 ]
 
 interface Candidate {
@@ -182,10 +151,10 @@ export function assignTitles(
   const titles: PlayerTitle[] = []
 
   for (const c of candidates) {
-    if (assignedPlayers.has(c.pid) || usedTitles.has(c.def.title)) continue
+    if (assignedPlayers.has(c.pid) || usedTitles.has(c.def.id)) continue
     assignedPlayers.add(c.pid)
-    usedTitles.add(c.def.title)
-    titles.push({ playerId: c.pid, title: c.def.title, subtitle: c.def.subtitle(stats[c.pid], ctx) })
+    usedTitles.add(c.def.id)
+    titles.push({ playerId: c.pid, titleId: c.def.id, params: c.def.params?.(stats[c.pid], ctx) })
   }
 
   // Anyone left over gets a fallback based on whether they were voted at all.
@@ -194,10 +163,7 @@ export function assignTitles(
     const neverVoted = stats[pid].totalVotes === 0
     titles.push({
       playerId: pid,
-      title: neverVoted ? 'The Forgotten One' : 'The Mysterious One',
-      subtitle: neverVoted
-        ? 'Not a single vote. Not even from themselves.'
-        : 'Flew under the radar all game',
+      titleId: neverVoted ? 'forgotten' : 'mysterious',
     })
     assignedPlayers.add(pid)
   }

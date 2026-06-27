@@ -13,10 +13,12 @@ import { ColorPicker } from '../components/ColorPicker'
 import { FontPicker } from '../components/FontPicker'
 import { QRDisplay } from '../components/QRDisplay'
 import { CategorySelectScreen } from './CategorySelectScreen'
+import { useT } from '../i18n'
 
 export function LobbyScreen() {
   const { code = '' } = useParams<{ code: string }>()
   const navigate = useNavigate()
+  const tr = useT()
   const { room, loading: roomLoading, notFound } = useRoom(code)
   const { players } = usePlayers(code)
   const playerId = getOrCreatePlayerId()
@@ -103,13 +105,13 @@ export function LobbyScreen() {
   const showProfileSection = !!me && !me.name?.trim() && !getSavedProfile().name.trim()
 
   if (roomLoading) {
-    return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">Loading...</div>
+    return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
   }
   if (notFound) {
     return (
       <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center gap-4 px-6">
-        <p className="text-white text-xl font-bold">Room not found</p>
-        <button onClick={() => navigate('/')} className="text-[#FFE500] text-sm">← Go Home</button>
+        <p className="text-white text-xl font-bold">{tr('roomNotFound')}</p>
+        <button onClick={() => navigate('/')} className="text-[#FFE500] text-sm">← {tr('goHome')}</button>
       </div>
     )
   }
@@ -133,15 +135,15 @@ export function LobbyScreen() {
               onClick={leaveRoom}
               className="text-gray-500 hover:text-white transition-colors text-sm font-semibold"
             >
-              ← Back
+              ← {tr('back')}
             </button>
-            <h1 className="text-2xl font-black text-white">Lobby</h1>
+            <h1 className="text-2xl font-black text-white">{tr('lobby')}</h1>
           </div>
           <button
             onClick={() => setShowQR(!showQR)}
             className="px-3 py-2 rounded-xl bg-[#1A1A1A] text-white text-sm font-semibold border border-white/10"
           >
-            {showQR ? 'Hide' : '+ Invite'}
+            {showQR ? tr('hide') : `+ ${tr('invite')}`}
           </button>
         </div>
 
@@ -155,14 +157,14 @@ export function LobbyScreen() {
       {/* Profile setup — only shown if player hasn't set a profile yet */}
       {showProfileSection && <div className="px-4 mb-4">
         <div className="bg-[#1A1A1A] rounded-3xl p-4">
-          <p className="text-white font-bold mb-3 text-sm uppercase tracking-wide">Your Profile</p>
+          <p className="text-white font-bold mb-3 text-sm uppercase tracking-wide">{tr('yourProfile')}</p>
 
           {/* Name */}
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value.slice(0, 20))}
-            placeholder="Your name..."
+            placeholder={tr('yourName')}
             className="w-full py-3 px-4 bg-[#0F0F0F] rounded-xl text-white font-semibold border-2 border-transparent focus:border-[#FFE500] outline-none placeholder-gray-600 mb-3"
             maxLength={20}
           />
@@ -175,7 +177,7 @@ export function LobbyScreen() {
                 onClick={() => setTab(t)}
                 className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${tab === t ? 'bg-[#1A1A1A] text-white' : 'text-gray-500'}`}
               >
-                {t === 'icon' ? '😀 Icon' : t === 'color' ? '🎨 Color' : '🅰 Font'}
+                {t === 'icon' ? `😀 ${tr('iconTab')}` : t === 'color' ? `🎨 ${tr('colorTab')}` : `🅰 ${tr('fontTab')}`}
               </button>
             ))}
           </div>
@@ -189,7 +191,7 @@ export function LobbyScreen() {
             disabled={!name.trim() || saving}
             className="mt-4 w-full py-3 rounded-xl bg-[#FFE500] text-[#0F0F0F] font-black text-sm hover:bg-yellow-300 active:scale-[0.98] transition-all disabled:opacity-40"
           >
-            {saving ? 'Saving...' : 'Save Profile'}
+            {saving ? tr('saving') : tr('saveProfile')}
           </button>
         </div>
       </div>}
@@ -197,7 +199,7 @@ export function LobbyScreen() {
       {/* Players list */}
       <div className="px-4 flex-1">
         <p className="text-gray-500 text-xs uppercase tracking-wide mb-3 font-semibold">
-          Players ({Object.values(players).filter(p => !p.isKicked).length})
+          {tr('players')} ({Object.values(players).filter(p => !p.isKicked).length})
         </p>
         <div className="flex flex-col gap-2">
           {Object.entries(players)
@@ -222,17 +224,17 @@ export function LobbyScreen() {
             disabled={!canStart}
             className="w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all disabled:opacity-40"
           >
-            Choose Categories →
+            {tr('chooseCategories')} →
           </button>
           {!canStart && (
-            <p className="text-center text-gray-500 text-xs mt-2">Need at least 2 named players to start</p>
+            <p className="text-center text-gray-500 text-xs mt-2">{tr('need2Players')}</p>
           )}
         </div>
       )}
 
       {!isHost && (
         <div className="px-4 mt-6 text-center">
-          <p className="text-gray-500 text-sm">Waiting for host to start the game...</p>
+          <p className="text-gray-500 text-sm">{tr('waitingHostStart')}</p>
         </div>
       )}
     </div>

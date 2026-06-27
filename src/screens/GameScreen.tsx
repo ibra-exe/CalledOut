@@ -11,6 +11,7 @@ import { VoteButton } from '../components/VoteButton'
 import { TimerBar } from '../components/TimerBar'
 import { ExitModal } from '../components/ExitModal'
 import { tallyVotes, tallySelfVotes } from '../utils/voteUtils'
+import { useT } from '../i18n'
 import {
   playQuestionReveal, playGameStarting, playVoteCast,
   playTimerTick, playTimerExpire, playAllVotesIn,
@@ -19,6 +20,7 @@ import {
 export function GameScreen() {
   const { code = '' } = useParams<{ code: string }>()
   const navigate = useNavigate()
+  const tr = useT()
   const { room, notFound } = useRoom(code)
   const { players } = usePlayers(code)
   const playerId = getOrCreatePlayerId()
@@ -123,13 +125,13 @@ export function GameScreen() {
   if (notFound) {
     return (
       <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center gap-4 px-6">
-        <p className="text-white text-xl font-bold">Room not found</p>
-        <button onClick={() => navigate('/')} className="text-[#FFE500] text-sm">← Go Home</button>
+        <p className="text-white text-xl font-bold">{tr('roomNotFound')}</p>
+        <button onClick={() => navigate('/')} className="text-[#FFE500] text-sm">{tr('goHome')}</button>
       </div>
     )
   }
 
-  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">Loading...</div>
+  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
 
   const totalQuestions = Object.keys(room.questionHistory ?? {}).length
   const question = room.currentQuestion
@@ -161,12 +163,13 @@ export function GameScreen() {
             onClick={() => setShowExit(true)}
             className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-500 text-xs font-semibold hover:text-white hover:bg-white/10 transition-all"
           >
-            Leave
+            {tr('leave')}
           </button>
         </div>
 
         <QuestionCard
           text={question.text}
+          textAr={question.textAr}
           category={question.category}
           questionNumber={qIndex + 1}
           totalQuestions={totalQuestions}
@@ -174,10 +177,10 @@ export function GameScreen() {
 
         {/* Progress (shown to all players) */}
         <div className="flex items-center justify-between text-xs text-gray-500 px-1">
-          <span>{voteCount}/{totalExpected} voted</span>
+          <span>{tr('votedCountTpl', { n: voteCount, m: totalExpected })}</span>
           {myVote && (
             <span className="text-[#FFE500] font-semibold">
-              {allowRevoting ? 'Voted — tap to change' : 'Your vote is in ✓'}
+              {allowRevoting ? tr('votedTapChange') : tr('yourVoteIn')}
             </span>
           )}
         </div>
@@ -202,7 +205,7 @@ export function GameScreen() {
         {/* Host vote progress dots */}
         {isHost && (
           <div className="mt-auto flex items-center justify-center gap-2 py-2">
-            <span className="text-gray-500 text-xs font-semibold">{voteCount}/{totalExpected} voted</span>
+            <span className="text-gray-500 text-xs font-semibold">{tr('votedCountTpl', { n: voteCount, m: totalExpected })}</span>
             <div className="flex gap-1.5">
               {activePlayers
                 .sort(([, a], [, b]) => a.joinedAt - b.joinedAt)

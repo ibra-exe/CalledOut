@@ -1,18 +1,27 @@
 import { useState } from 'react'
 import { getSettings, saveSettings } from '../utils/settingsUtils'
 import type { AppSettings } from '../utils/settingsUtils'
+import { getLang, setLang, useT } from '../i18n'
+import type { Lang } from '../i18n'
 
 interface Props {
   onClose: () => void
 }
 
 export function SettingsModal({ onClose }: Props) {
+  const tr = useT()
   const [settings, setSettings] = useState<AppSettings>(getSettings)
+  const [lang, setLangState] = useState<Lang>(getLang)
 
   const update = (patch: Partial<AppSettings>) => {
     const next = { ...settings, ...patch }
     setSettings(next)
     saveSettings(next)
+  }
+
+  const changeLang = (next: Lang) => {
+    setLangState(next)
+    setLang(next)
   }
 
   return (
@@ -21,8 +30,33 @@ export function SettingsModal({ onClose }: Props) {
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
 
         <div className="flex items-center justify-between mb-6">
-          <span className="text-white font-bold text-lg">Settings</span>
+          <span className="text-white font-bold text-lg">{tr('settings')}</span>
           <button onClick={onClose} className="text-gray-400 text-xl w-8 h-8 flex items-center justify-center">✕</button>
+        </div>
+
+        {/* Language */}
+        <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-2xl mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🌐</span>
+            <div>
+              <p className="text-white font-semibold text-sm">{tr('language')}</p>
+              <p className="text-gray-500 text-xs">{tr('languageDesc')}</p>
+            </div>
+          </div>
+          <div className="flex gap-1 bg-[#1A1A1A] rounded-xl p-1 flex-shrink-0">
+            <button
+              onClick={() => changeLang('en')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${lang === 'en' ? 'bg-[#FFE500] text-[#0F0F0F]' : 'text-gray-400'}`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => changeLang('ar')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${lang === 'ar' ? 'bg-[#FFE500] text-[#0F0F0F]' : 'text-gray-400'}`}
+            >
+              عربي
+            </button>
+          </div>
         </div>
 
         {/* Sound Effects */}
@@ -30,8 +64,8 @@ export function SettingsModal({ onClose }: Props) {
           <div className="flex items-center gap-3">
             <span className="text-2xl">{settings.soundEnabled ? '🔊' : '🔇'}</span>
             <div>
-              <p className="text-white font-semibold text-sm">Sound Effects</p>
-              <p className="text-gray-500 text-xs">Votes, reveals, timer &amp; more</p>
+              <p className="text-white font-semibold text-sm">{tr('soundEffects')}</p>
+              <p className="text-gray-500 text-xs">{tr('soundDesc')}</p>
             </div>
           </div>
           <button

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Html5Qrcode as Html5QrcodeType } from 'html5-qrcode'
+import { useT } from '../i18n'
 
 interface Props {
   onScan: (code: string) => void
@@ -19,6 +20,7 @@ function getCameraBlockReason(): string | null {
 }
 
 export function QRScanner({ onScan, onClose }: Props) {
+  const tr = useT()
   const regionRef = useRef<HTMLDivElement>(null)
   const scannerRef = useRef<Html5QrcodeType | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -70,7 +72,7 @@ export function QRScanner({ onScan, onClose }: Props) {
     <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
       <div className="bg-[#1A1A1A] rounded-3xl p-4 w-full max-w-sm">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-white font-bold">Scan QR Code</span>
+          <span className="text-white font-bold">{tr('scanQRTitle')}</span>
           <button onClick={onClose} className="text-gray-400 text-xl w-8 h-8 flex items-center justify-center">✕</button>
         </div>
         {error ? (
@@ -81,13 +83,13 @@ export function QRScanner({ onScan, onClose }: Props) {
               onClick={onClose}
               className="mt-2 px-5 py-3 rounded-xl bg-[#FFE500] text-[#0F0F0F] font-bold text-sm"
             >
-              Use Upload QR Instead
+              {tr('useUploadInstead')}
             </button>
           </div>
         ) : (
           <>
             <div id="qr-scanner-region" ref={regionRef} className="rounded-xl overflow-hidden" />
-            <p className="text-gray-500 text-xs text-center mt-3">Point camera at the QR code</p>
+            <p className="text-gray-500 text-xs text-center mt-3">{tr('scanQRHint')}</p>
           </>
         )}
       </div>

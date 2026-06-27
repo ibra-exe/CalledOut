@@ -1,4 +1,5 @@
 import type { Player } from '../types'
+import { useT } from '../i18n'
 
 interface Props {
   player: Player
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function VoteButton({ player, isSelected, disabled, isSelf, onClick }: Props) {
+  const tr = useT()
   return (
     <button
       onClick={onClick}
@@ -31,7 +33,7 @@ export function VoteButton({ player, isSelected, disabled, isSelf, onClick }: Pr
         {player.icon}
       </div>
       <span className={`font-semibold text-white flex-1 truncate ${player.font}`}>
-        {player.name}{isSelf ? ' (you)' : ''}
+        {player.name}{isSelf ? ` ${tr('you')}` : ''}
       </span>
       {isSelected && (
         <span className="text-[#FFE500] text-xl flex-shrink-0">✓</span>

@@ -4,6 +4,7 @@ import { getSavedProfile } from '../utils/profileUtils'
 import type { PlayerProfile } from '../utils/profileUtils'
 import { ProfileModal } from '../components/ProfileModal'
 import { SettingsModal } from '../components/SettingsModal'
+import { useT } from '../i18n'
 
 function AlienIcon({ className }: { className?: string }) {
   return (
@@ -59,6 +60,7 @@ function TypewriterLine({ text, delay = 0, speed = 55, cursor = true }: { text: 
 
 export function HomeScreen() {
   const navigate = useNavigate()
+  const tr = useT()
   const [showProfile, setShowProfile] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [profile, setProfile] = useState<PlayerProfile>(getSavedProfile)
@@ -109,10 +111,10 @@ export function HomeScreen() {
             animation never shifts the buttons below it */}
         <div className="relative mt-3 max-w-xs mx-auto">
           <p className="text-gray-400 text-base invisible" aria-hidden>
-            Rated E for Everyone Gets Exposed.
+            {tr('tagline')}
           </p>
           <p className="text-gray-400 text-base absolute inset-0">
-            <TypewriterLine text="Rated E for Everyone Gets Exposed." delay={400} speed={80} cursor={false} />
+            <TypewriterLine key={tr('tagline')} text={tr('tagline')} delay={400} speed={80} cursor={false} />
           </p>
         </div>
       </div>
@@ -134,11 +136,11 @@ export function HomeScreen() {
               <span className={`text-white font-semibold text-sm flex-1 text-left truncate ${profile.font}`}>
                 {profile.name}
               </span>
-              <span className="text-gray-500 text-xs shrink-0">Edit ✏</span>
+              <span className="text-gray-500 text-xs shrink-0">{tr('edit')} ✏</span>
             </>
           ) : (
             <>
-              <span className="text-gray-400 font-semibold text-sm flex-1 text-left">Set your profile</span>
+              <span className="text-gray-400 font-semibold text-sm flex-1 text-left">{tr('setProfile')}</span>
               <span className="text-gray-600 text-xs shrink-0">→</span>
             </>
           )}
@@ -148,19 +150,19 @@ export function HomeScreen() {
           onClick={() => navigate('/create')}
           className="w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg tracking-wide hover:bg-yellow-300 active:scale-[0.97] transition-all"
         >
-          Create Room
+          {tr('createRoom')}
         </button>
         <button
           onClick={() => navigate('/join')}
           className="w-full py-5 rounded-2xl bg-[#1A1A1A] text-white font-bold text-lg border border-white/10 hover:bg-white/5 active:scale-[0.97] transition-all"
         >
-          Join Room
+          {tr('joinRoom')}
         </button>
       </div>
 
       {/* Footer credit */}
       <div className="absolute bottom-8 flex items-center gap-2 text-gray-600 font-mono text-xs select-none">
-        <TypewriterLine text="Created By Ibra" delay={800} speed={60} />
+        <TypewriterLine key={tr('createdBy')} text={tr('createdBy')} delay={800} speed={60} />
         <AlienIcon className="w-4 h-4 text-gray-600" />
       </div>
     </div>

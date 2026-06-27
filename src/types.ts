@@ -17,11 +17,13 @@ export interface Player {
 
 export interface Question {
   text: string
+  textAr?: string
   category: string
 }
 
 export interface QuestionHistoryEntry {
   text: string
+  textAr?: string
   category: string
   votes: Record<string, number>
   selfVotes?: Record<string, number>
@@ -45,6 +47,6 @@ export type FontOption = 'font-sans' | 'font-poppins' | 'font-lobster' | 'font-m
 
 export interface PlayerTitle {
   playerId: string
-  title: string
-  subtitle: string
+  titleId: string
+  params?: Record<string, number>
 }

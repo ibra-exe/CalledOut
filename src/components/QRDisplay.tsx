@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { useT } from '../i18n'
 
 interface Props {
   code: string
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function QRDisplay({ code, joinUrl }: Props) {
+  const tr = useT()
   const [copied, setCopied] = useState(false)
 
   const copyCode = async () => {
@@ -28,11 +30,11 @@ export function QRDisplay({ code, joinUrl }: Props) {
           onClick={copyCode}
           className="px-4 py-3 bg-[#1A1A1A] rounded-2xl text-sm font-semibold text-white hover:bg-white/10 transition-colors min-h-[48px]"
         >
-          {copied ? '✓ Copied' : 'Copy'}
+          {copied ? `✓ ${tr('copied')}` : tr('copy')}
         </button>
       </div>
       <p className="text-gray-500 text-xs text-center">
-        Scan QR or enter code at <span className="text-gray-400">{window.location.host}/join</span>
+        {tr('scanOrEnterAt')} <span className="text-gray-400" dir="ltr">{window.location.host}/join</span>
       </p>
     </div>
   )

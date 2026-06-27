@@ -5,6 +5,7 @@ import { FontPicker } from './FontPicker'
 import { getSavedProfile, saveProfileLocally } from '../utils/profileUtils'
 import type { PlayerProfile } from '../utils/profileUtils'
 import { playProfileSaved } from '../utils/soundUtils'
+import { useT } from '../i18n'
 
 interface Props {
   onClose: () => void
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function ProfileModal({ onClose, onSave }: Props) {
+  const tr = useT()
   const saved = getSavedProfile()
   const [name, setName] = useState(saved.name)
   const [icon, setIcon] = useState(saved.icon)
@@ -34,7 +36,7 @@ export function ProfileModal({ onClose, onSave }: Props) {
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
 
         <div className="flex items-center justify-between mb-4">
-          <span className="text-white font-bold text-lg">Your Profile</span>
+          <span className="text-white font-bold text-lg">{tr('yourProfile')}</span>
           <button onClick={onClose} className="text-gray-400 text-xl w-8 h-8 flex items-center justify-center">✕</button>
         </div>
 
@@ -45,14 +47,14 @@ export function ProfileModal({ onClose, onSave }: Props) {
           >
             {icon}
           </div>
-          <span className={`text-white font-semibold truncate ${font}`}>{name || 'Your name'}</span>
+          <span className={`text-white font-semibold truncate ${font}`}>{name || tr('nameFallback')}</span>
         </div>
 
         <input
           type="text"
           value={name}
           onChange={e => setName(e.target.value.slice(0, 20))}
-          placeholder="Your name..."
+          placeholder={tr('yourName')}
           className="w-full py-3 px-4 bg-[#0F0F0F] rounded-xl text-white font-semibold border-2 border-transparent focus:border-[#FFE500] outline-none placeholder-gray-600 mb-3"
           maxLength={20}
         />
@@ -64,7 +66,7 @@ export function ProfileModal({ onClose, onSave }: Props) {
               onClick={() => setTab(t)}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${tab === t ? 'bg-[#1A1A1A] text-white' : 'text-gray-500'}`}
             >
-              {t === 'icon' ? '😀 Icon' : t === 'color' ? '🎨 Color' : '🅰 Font'}
+              {t === 'icon' ? `😀 ${tr('iconTab')}` : t === 'color' ? `🎨 ${tr('colorTab')}` : `🅰 ${tr('fontTab')}`}
             </button>
           ))}
         </div>
@@ -78,7 +80,7 @@ export function ProfileModal({ onClose, onSave }: Props) {
           disabled={!name.trim()}
           className="mt-4 w-full py-3 rounded-xl bg-[#FFE500] text-[#0F0F0F] font-black text-sm hover:bg-yellow-300 active:scale-[0.98] transition-all disabled:opacity-40"
         >
-          Save Profile
+          {tr('saveProfile')}
         </button>
       </div>
     </div>

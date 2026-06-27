@@ -8,6 +8,7 @@ import { useVotes } from '../hooks/useVotes'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { tallyVotes, getWinners } from '../utils/voteUtils'
 import { playResultsReveal, playWinnerFanfare, playTie } from '../utils/soundUtils'
+import { useT } from '../i18n'
 import { QuestionCard } from '../components/QuestionCard'
 import { ConfettiEffect } from '../components/ConfettiEffect'
 import { ExitModal } from '../components/ExitModal'
@@ -15,6 +16,7 @@ import { ExitModal } from '../components/ExitModal'
 export function RevealScreen() {
   const { code = '' } = useParams<{ code: string }>()
   const navigate = useNavigate()
+  const tr = useT()
   const { room } = useRoom(code)
   const { players } = usePlayers(code)
   const playerId = getOrCreatePlayerId()
@@ -69,7 +71,7 @@ export function RevealScreen() {
     await update(ref(db, `rooms/${code}`), {
       status: 'playing',
       currentQuestionIndex: nextIndex,
-      currentQuestion: { text: nextQ?.text ?? '', category: nextQ?.category ?? '' },
+      currentQuestion: { text: nextQ?.text ?? '', textAr: nextQ?.textAr ?? nextQ?.text ?? '', category: nextQ?.category ?? '' },
       votes: null, // delete ALL votes — raw per-question votes are no longer needed once tallied
     })
   }
@@ -88,7 +90,7 @@ export function RevealScreen() {
     navigate('/')
   }
 
-  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">Loading...</div>
+  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-4 pt-4 pb-8 gap-5">
@@ -109,12 +111,13 @@ export function RevealScreen() {
           onClick={() => setShowExit(true)}
           className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-500 text-xs font-semibold hover:text-white hover:bg-white/10 transition-all"
         >
-          Leave
+          {tr('leave')}
         </button>
       </div>
 
       <QuestionCard
         text={room.currentQuestion.text}
+        textAr={room.currentQuestion.textAr}
         category={room.currentQuestion.category}
         questionNumber={qIndex + 1}
         totalQuestions={totalQuestions}
@@ -122,7 +125,7 @@ export function RevealScreen() {
 
       {/* Results */}
       <div className="flex flex-col gap-3">
-        <p className="text-gray-500 text-xs uppercase tracking-wide font-semibold">Results</p>
+        <p className="text-gray-500 text-xs uppercase tracking-wide font-semibold">{tr('results')}</p>
         {activePlayers.map(([pid, player]) => {
           const v = tally[pid] ?? 0
           const isWinner = winners.includes(pid)
@@ -142,7 +145,7 @@ export function RevealScreen() {
               </div>
               <div className="flex-1">
                 <p className={`font-bold text-white ${player.font}`}>{player.name}</p>
-                <p className="text-gray-400 text-sm">{v} vote{v !== 1 ? 's' : ''}</p>
+                <p className="text-gray-400 text-sm">{v} {v !== 1 ? tr('votePlural') : tr('voteSingular')}</p>
               </div>
               {isWinner && v > 0 && (
                 <span className="text-2xl">{winners.length > 1 ? '🤝' : '👑'}</span>
@@ -157,8 +160,8 @@ export function RevealScreen() {
         <div className="bg-[#FFE500]/5 border border-[#FFE500]/20 rounded-2xl p-4 text-center">
           <p className="text-[#FFE500] font-black text-lg">
             {winners.length === 1
-              ? `${players[winners[0]]?.name} was Called Out! 🎤`
-              : `${winners.map(w => players[w]?.name).join(' & ')} tied! 🤝`}
+              ? tr('calledOutTpl', { name: players[winners[0]]?.name ?? '' })
+              : tr('tiedTpl', { names: winners.map(w => players[w]?.name).join(' & ') })}
           </p>
         </div>
       )}
@@ -169,11 +172,11 @@ export function RevealScreen() {
           onClick={nextQuestion}
           className="mt-auto w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all"
         >
-          {isLastQuestion ? 'See Final Stats →' : 'Next Question →'}
+          {isLastQuestion ? tr('seeFinalStats') : tr('nextQuestion')}
         </button>
       ) : (
         <div className="mt-auto text-center text-gray-500 text-sm py-4">
-          Waiting for host to continue...
+          {tr('waitingHostContinue')}
         </div>
       )}
     </div>
