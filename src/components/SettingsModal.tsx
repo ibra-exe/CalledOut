@@ -1,19 +1,28 @@
 import { useState } from 'react'
+import { ref, update } from 'firebase/database'
+import { db } from '../firebase'
 import { getSettings, saveSettings } from '../utils/settingsUtils'
 import type { AppSettings } from '../utils/settingsUtils'
 import { getLang, setLang, useT } from '../i18n'
 import type { Lang } from '../i18n'
+import { ProfileModal } from './ProfileModal'
+import type { PlayerProfile } from '../utils/profileUtils'
 
 interface Props {
   onClose: () => void
+  // When set, the modal is being used inside a room — show "Edit Profile" and
+  // sync profile edits to that player's Firebase record.
+  roomCode?: string
+  playerId?: string
 }
 
-export function SettingsModal({ onClose }: Props) {
+export function SettingsModal({ onClose, roomCode, playerId }: Props) {
   const tr = useT()
   const [settings, setSettings] = useState<AppSettings>(getSettings)
   const [lang, setLangState] = useState<Lang>(getLang)
+  const [showProfile, setShowProfile] = useState(false)
 
-  const update = (patch: Partial<AppSettings>) => {
+  const update_ = (patch: Partial<AppSettings>) => {
     const next = { ...settings, ...patch }
     setSettings(next)
     saveSettings(next)
@@ -22,6 +31,21 @@ export function SettingsModal({ onClose }: Props) {
   const changeLang = (next: Lang) => {
     setLangState(next)
     setLang(next)
+  }
+
+  const handleProfileSave = (profile: PlayerProfile) => {
+    if (roomCode && playerId) {
+      update(ref(db, `rooms/${roomCode}/players/${playerId}`), {
+        name: profile.name,
+        icon: profile.icon,
+        color: profile.color,
+        font: profile.font,
+      })
+    }
+  }
+
+  if (showProfile) {
+    return <ProfileModal onClose={() => setShowProfile(false)} onSave={handleProfileSave} />
   }
 
   return (
@@ -33,6 +57,20 @@ export function SettingsModal({ onClose }: Props) {
           <span className="text-white font-bold text-lg">{tr('settings')}</span>
           <button onClick={onClose} className="text-gray-400 text-xl w-8 h-8 flex items-center justify-center">✕</button>
         </div>
+
+        {/* Edit profile (only inside a room) */}
+        {roomCode && playerId && (
+          <button
+            onClick={() => setShowProfile(true)}
+            className="w-full flex items-center justify-between p-4 bg-[#0F0F0F] rounded-2xl mb-3 active:scale-[0.99] transition-transform"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🙂</span>
+              <p className="text-white font-semibold text-sm">{tr('yourProfile')}</p>
+            </div>
+            <span className="text-gray-500 text-sm">{tr('edit')} →</span>
+          </button>
+        )}
 
         {/* Language */}
         <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-2xl mb-3">
@@ -69,7 +107,7 @@ export function SettingsModal({ onClose }: Props) {
             </div>
           </div>
           <button
-            onClick={() => update({ soundEnabled: !settings.soundEnabled })}
+            onClick={() => update_({ soundEnabled: !settings.soundEnabled })}
             className={`relative w-14 h-7 rounded-full flex-shrink-0 transition-colors duration-200 ${settings.soundEnabled ? 'bg-[#FFE500]' : 'bg-white/20'}`}
           >
             <span

@@ -12,6 +12,7 @@ import { useT } from '../i18n'
 import { QuestionCard } from '../components/QuestionCard'
 import { ConfettiEffect } from '../components/ConfettiEffect'
 import { ExitModal } from '../components/ExitModal'
+import { SettingsButton } from '../components/SettingsButton'
 
 export function RevealScreen() {
   const { code = '' } = useParams<{ code: string }>()
@@ -71,7 +72,7 @@ export function RevealScreen() {
     await update(ref(db, `rooms/${code}`), {
       status: 'playing',
       currentQuestionIndex: nextIndex,
-      currentQuestion: { text: nextQ?.text ?? '', textAr: nextQ?.textAr ?? nextQ?.text ?? '', category: nextQ?.category ?? '' },
+      currentQuestion: { id: nextQ?.id ?? '', text: nextQ?.text ?? '', textAr: nextQ?.textAr ?? nextQ?.text ?? '', category: nextQ?.category ?? '' },
       votes: null, // delete ALL votes — raw per-question votes are no longer needed once tallied
     })
   }
@@ -105,8 +106,9 @@ export function RevealScreen() {
 
       <ConfettiEffect trigger={revealed} />
 
-      {/* Header with exit */}
-      <div className="flex items-center justify-end">
+      {/* Header with settings + exit */}
+      <div className="flex items-center justify-end gap-2">
+        <SettingsButton code={code} playerId={playerId} />
         <button
           onClick={() => setShowExit(true)}
           className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-500 text-xs font-semibold hover:text-white hover:bg-white/10 transition-all"

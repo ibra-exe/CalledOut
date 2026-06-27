@@ -15,13 +15,24 @@ export interface Player {
   joinedAt: number
 }
 
+// A question in the static/admin bank (English + Arabic source of truth)
 export interface Question {
+  id: string
+  en: string
+  ar: string
+  category: string
+}
+
+// The active question stored on the room during play (display shape)
+export interface CurrentQuestion {
+  id?: string
   text: string
   textAr?: string
   category: string
 }
 
 export interface QuestionHistoryEntry {
+  id?: string
   text: string
   textAr?: string
   category: string
@@ -33,7 +44,7 @@ export interface Room {
   status: RoomStatus
   hostId: string
   currentQuestionIndex: number
-  currentQuestion: Question
+  currentQuestion: CurrentQuestion
   categories: string[]
   questionOrder: number[]
   createdAt: number

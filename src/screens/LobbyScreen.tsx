@@ -13,6 +13,8 @@ import { ColorPicker } from '../components/ColorPicker'
 import { FontPicker } from '../components/FontPicker'
 import { QRDisplay } from '../components/QRDisplay'
 import { CategorySelectScreen } from './CategorySelectScreen'
+import { ExitModal } from '../components/ExitModal'
+import { SettingsButton } from '../components/SettingsButton'
 import { useT } from '../i18n'
 
 export function LobbyScreen() {
@@ -30,6 +32,7 @@ export function LobbyScreen() {
   const [saving, setSaving] = useState(false)
   const [showQR, setShowQR] = useState(false)
   const [showCategorySelect, setShowCategorySelect] = useState(false)
+  const [showExit, setShowExit] = useState(false)
   const [tab, setTab] = useState<'icon' | 'color' | 'font'>('icon')
 
   const me = players[playerId]
@@ -91,12 +94,13 @@ export function LobbyScreen() {
     await update(ref(db, `rooms/${code}/players/${pid}`), { isKicked: true })
   }
 
-  const leaveRoom = async () => {
-    if (isHost) {
-      await remove(ref(db, `rooms/${code}`))
-    } else {
-      await remove(ref(db, `rooms/${code}/players/${playerId}`))
-    }
+  const handleEndGame = () => {
+    remove(ref(db, `rooms/${code}`)) // host ends the room for everyone
+    navigate('/')
+  }
+
+  const handleLeave = () => {
+    remove(ref(db, `rooms/${code}/players/${playerId}`)) // remove self
     navigate('/')
   }
 
@@ -126,29 +130,40 @@ export function LobbyScreen() {
           onClose={() => setShowCategorySelect(false)}
         />
       )}
+      {showExit && (
+        <ExitModal
+          isHost={isHost}
+          onEndGame={handleEndGame}
+          onLeave={handleLeave}
+          onCancel={() => setShowExit(false)}
+        />
+      )}
 
       {/* Header */}
       <div className="px-4 pt-10 pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={leaveRoom}
+              onClick={() => setShowExit(true)}
               className="text-gray-500 hover:text-white transition-colors text-sm font-semibold"
             >
               ← {tr('back')}
             </button>
             <h1 className="text-2xl font-black text-white">{tr('lobby')}</h1>
           </div>
-          <button
-            onClick={() => setShowQR(!showQR)}
-            className="px-3 py-2 rounded-xl bg-[#1A1A1A] text-white text-sm font-semibold border border-white/10"
-          >
-            {showQR ? tr('hide') : `+ ${tr('invite')}`}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowQR(!showQR)}
+              className="px-3 py-2 rounded-xl bg-[#1A1A1A] text-white text-sm font-semibold border border-white/10"
+            >
+              {showQR ? tr('hide') : `+ ${tr('invite')}`}
+            </button>
+            <SettingsButton code={code} playerId={playerId} />
+          </div>
         </div>
 
         {showQR && (
-          <div className="mt-4 p-4 bg-[#1A1A1A] rounded-2xl">
+          <div className="mt-4 flex justify-center">
             <QRDisplay code={code} joinUrl={joinUrl} />
           </div>
         )}

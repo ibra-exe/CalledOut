@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { ref, update } from 'firebase/database'
 import { db } from '../firebase'
-import { CATEGORIES, shuffleQuestions, getQuestionsByCategories } from '../questions'
+import { CATEGORIES, shuffleQuestions } from '../questions'
+import { fetchQuestionsForGame } from '../questionBank'
 import { useT } from '../i18n'
 
 interface Props {
@@ -42,12 +43,13 @@ export function CategorySelectScreen({ code, onClose }: Props) {
       categoryIds = selected
     }
 
-    const questions = shuffleQuestions(getQuestionsByCategories(categoryIds))
+    const pool = await fetchQuestionsForGame(categoryIds)
+    const questions = shuffleQuestions(pool)
     const limited = questions.slice(0, questionCount)
 
-    const questionHistory: Record<string, { text: string; textAr: string; category: string; votes: Record<string, number> }> = {}
+    const questionHistory: Record<string, { id: string; text: string; textAr: string; category: string; votes: Record<string, number> }> = {}
     limited.forEach((q, i) => {
-      questionHistory[i] = { text: q.text, textAr: q.textAr ?? q.text, category: q.category, votes: {} }
+      questionHistory[i] = { id: q.id, text: q.en, textAr: q.ar ?? q.en, category: q.category, votes: {} }
     })
 
     const first = limited[0]
@@ -55,7 +57,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
       status: 'playing',
       categories: categoryIds,
       currentQuestionIndex: 0,
-      currentQuestion: { text: first.text, textAr: first.textAr ?? first.text, category: first.category },
+      currentQuestion: { id: first.id, text: first.en, textAr: first.ar ?? first.en, category: first.category },
       questionOrder: limited.map((_, i) => i),
       questionHistory,
       settings: { timerSeconds, allowRevoting },
