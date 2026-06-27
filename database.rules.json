@@ -11,6 +11,10 @@
     "questionBank": {
       ".read": true,
       ".write": true
+    },
+    "questionSuggestions": {
+      ".read": true,
+      ".write": true
     }
   }
 }

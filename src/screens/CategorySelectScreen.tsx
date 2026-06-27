@@ -47,9 +47,9 @@ export function CategorySelectScreen({ code, onClose }: Props) {
     const questions = shuffleQuestions(pool)
     const limited = questions.slice(0, questionCount)
 
-    const questionHistory: Record<string, { id: string; text: string; textAr: string; category: string; votes: Record<string, number> }> = {}
+    const questionHistory: Record<string, { id: string; text: string; textAr: string; category: string; userSuggested: boolean; votes: Record<string, number> }> = {}
     limited.forEach((q, i) => {
-      questionHistory[i] = { id: q.id, text: q.en, textAr: q.ar ?? q.en, category: q.category, votes: {} }
+      questionHistory[i] = { id: q.id, text: q.en, textAr: q.ar ?? q.en, category: q.category, userSuggested: !!q.userSuggested, votes: {} }
     })
 
     const first = limited[0]
@@ -57,7 +57,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
       status: 'playing',
       categories: categoryIds,
       currentQuestionIndex: 0,
-      currentQuestion: { id: first.id, text: first.en, textAr: first.ar ?? first.en, category: first.category },
+      currentQuestion: { id: first.id, text: first.en, textAr: first.ar ?? first.en, category: first.category, userSuggested: !!first.userSuggested },
       questionOrder: limited.map((_, i) => i),
       questionHistory,
       settings: { timerSeconds, allowRevoting },

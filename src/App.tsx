@@ -8,6 +8,7 @@ import { RevealScreen } from './screens/RevealScreen'
 import { StatsScreen } from './screens/StatsScreen'
 import { AboutScreen } from './screens/AboutScreen'
 import { AdminScreen } from './screens/AdminScreen'
+import { SuggestScreen } from './screens/SuggestScreen'
 import { useRoom } from './hooks/useRoom'
 import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/stats/:code" element={<StatsScreen />} />
           <Route path="/about" element={<AboutScreen />} />
           <Route path="/admin" element={<AdminScreen />} />
+          <Route path="/suggest" element={<SuggestScreen />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

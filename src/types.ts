@@ -22,6 +22,7 @@ export interface Question {
   ar: string
   category: string
   arConfirmed?: boolean // admin has verified the Arabic translation
+  userSuggested?: boolean // came from a player suggestion, approved by admin
 }
 
 // The active question stored on the room during play (display shape)
@@ -30,6 +31,7 @@ export interface CurrentQuestion {
   text: string
   textAr?: string
   category: string
+  userSuggested?: boolean
 }
 
 export interface QuestionHistoryEntry {
@@ -37,8 +39,20 @@ export interface QuestionHistoryEntry {
   text: string
   textAr?: string
   category: string
+  userSuggested?: boolean
   votes: Record<string, number>
   selfVotes?: Record<string, number>
+}
+
+// A player-submitted question awaiting admin review
+export interface Suggestion {
+  id: string
+  category: string
+  en: string
+  ar: string
+  name: string
+  createdAt: number
+  status: 'pending' | 'declined'
 }
 
 export interface Room {

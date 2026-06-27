@@ -175,6 +175,7 @@ export function GameScreen() {
           category={question.category}
           questionNumber={qIndex + 1}
           totalQuestions={totalQuestions}
+          userSuggested={question.userSuggested}
         />
 
         {/* Progress (shown to all players) */}

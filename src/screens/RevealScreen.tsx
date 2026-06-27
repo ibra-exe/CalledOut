@@ -72,7 +72,7 @@ export function RevealScreen() {
     await update(ref(db, `rooms/${code}`), {
       status: 'playing',
       currentQuestionIndex: nextIndex,
-      currentQuestion: { id: nextQ?.id ?? '', text: nextQ?.text ?? '', textAr: nextQ?.textAr ?? nextQ?.text ?? '', category: nextQ?.category ?? '' },
+      currentQuestion: { id: nextQ?.id ?? '', text: nextQ?.text ?? '', textAr: nextQ?.textAr ?? nextQ?.text ?? '', category: nextQ?.category ?? '', userSuggested: !!nextQ?.userSuggested },
       votes: null, // delete ALL votes — raw per-question votes are no longer needed once tallied
     })
   }
@@ -123,6 +123,7 @@ export function RevealScreen() {
         category={room.currentQuestion.category}
         questionNumber={qIndex + 1}
         totalQuestions={totalQuestions}
+        userSuggested={room.currentQuestion.userSuggested}
       />
 
       {/* Results */}

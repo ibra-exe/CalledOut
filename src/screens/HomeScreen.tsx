@@ -158,6 +158,12 @@ export function HomeScreen() {
         >
           {tr('joinRoom')}
         </button>
+        <button
+          onClick={() => navigate('/suggest')}
+          className="w-full py-2 text-gray-500 text-sm font-semibold hover:text-[#FFE500] transition-colors"
+        >
+          💡 {tr('suggestQuestion')}
+        </button>
       </div>
 
       {/* Footer credit */}

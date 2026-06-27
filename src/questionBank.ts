@@ -1,13 +1,13 @@
-import { ref, get, set, update, remove } from 'firebase/database'
+import { ref, get, set, update, remove, push } from 'firebase/database'
 import { db } from './firebase'
 import { QUESTIONS, CATEGORIES } from './questions'
-import type { Question } from './types'
+import type { Question, Suggestion } from './types'
 
-// Firebase layout: questionBank/{category}/{id} = { en, ar, arConfirmed? }
+// Firebase layout: questionBank/{category}/{id} = { en, ar, arConfirmed?, userSuggested? }
 // The static QUESTIONS bundle is the default bank. The admin panel can seed an
 // editable copy into Firebase; once seeded, games read from there instead.
 
-type BankNode = Record<string, { en: string; ar: string; arConfirmed?: boolean }>
+type BankNode = Record<string, { en: string; ar: string; arConfirmed?: boolean; userSuggested?: boolean }>
 type Bank = Record<string, BankNode>
 
 const ALL_CATEGORY_IDS = CATEGORIES.map(c => c.id)
@@ -55,7 +55,7 @@ export async function fetchQuestionsForGame(categoryIds: string[]): Promise<Ques
     const node = bank?.[cat]
     if (node && Object.keys(node).length > 0) {
       for (const [id, q] of Object.entries(node)) {
-        if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? q.en, category: cat })
+        if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? q.en, category: cat, userSuggested: !!q.userSuggested })
       }
     } else {
       out.push(...QUESTIONS.filter(q => q.category === cat))
@@ -67,7 +67,7 @@ export async function fetchQuestionsForGame(categoryIds: string[]): Promise<Ques
 // ── Admin CRUD ──
 export function adminUpsertQuestion(q: Question): Promise<void> {
   return set(ref(db, `questionBank/${q.category}/${q.id}`), {
-    en: q.en, ar: q.ar, arConfirmed: q.arConfirmed ?? false,
+    en: q.en, ar: q.ar, arConfirmed: q.arConfirmed ?? false, userSuggested: q.userSuggested ?? false,
   })
 }
 
@@ -87,8 +87,51 @@ export function bankToQuestions(bank: Bank | null): Question[] {
   for (const [category, node] of Object.entries(bank)) {
     if (!node) continue
     for (const [id, q] of Object.entries(node)) {
-      if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? '', category, arConfirmed: !!q.arConfirmed })
+      if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? '', category, arConfirmed: !!q.arConfirmed, userSuggested: !!q.userSuggested })
     }
   }
   return out
+}
+
+// ── Player suggestions (inbox) ──
+// Firebase layout: questionSuggestions/{pushId} = { category, en, ar, name, createdAt, status }
+
+export function submitSuggestion(data: { category: string; en: string; ar: string; name: string }): Promise<unknown> {
+  const node = push(ref(db, 'questionSuggestions'))
+  return set(node, {
+    category: data.category,
+    en: data.en.trim(),
+    ar: data.ar.trim(),
+    name: data.name.trim(),
+    createdAt: Date.now(),
+    status: 'pending',
+  })
+}
+
+export function suggestionsToList(raw: Record<string, Omit<Suggestion, 'id'>> | null): Suggestion[] {
+  if (!raw) return []
+  return Object.entries(raw)
+    .map(([id, s]) => ({ id, ...s, status: s.status ?? 'pending' }))
+    .sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0))
+}
+
+export function declineSuggestion(id: string): Promise<void> {
+  return update(ref(db, `questionSuggestions/${id}`), { status: 'declined' })
+}
+
+export function deleteSuggestion(id: string): Promise<void> {
+  return remove(ref(db, `questionSuggestions/${id}`))
+}
+
+export function updateSuggestion(id: string, patch: Partial<Pick<Suggestion, 'category' | 'en' | 'ar'>>): Promise<void> {
+  return update(ref(db, `questionSuggestions/${id}`), patch)
+}
+
+// Approve a suggestion: add it to the bank tagged userSuggested, then remove from the inbox.
+export async function approveSuggestion(s: Suggestion): Promise<void> {
+  const id = genQuestionId(s.category)
+  await set(ref(db, `questionBank/${s.category}/${id}`), {
+    en: s.en.trim(), ar: s.ar.trim(), arConfirmed: false, userSuggested: true,
+  })
+  await remove(ref(db, `questionSuggestions/${s.id}`))
 }
