@@ -131,9 +131,11 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Opacity-only: a transform here would make the wrapper a containing block
+   for the fixed-position modals inside the routed screens. */
 @keyframes routeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes floatBlob {
