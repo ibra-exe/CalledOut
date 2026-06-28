@@ -88,6 +88,13 @@
   .animate-loader-dot {
     animation: loaderBounce 1.2s ease-in-out infinite;
   }
+  /* Bottom sheet (game setup) */
+  .animate-backdrop-in {
+    animation: backdropIn 0.25s ease-out both;
+  }
+  .animate-sheet-in {
+    animation: sheetIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 
   /* Sweeping sheen for primary CTAs */
   .btn-shine { position: relative; overflow: hidden; }
@@ -156,6 +163,16 @@
 @keyframes shine {
   0% { left: -80%; }
   55%, 100% { left: 130%; }
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sheetIn {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 /* Respect users who prefer less motion */

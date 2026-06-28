@@ -69,8 +69,9 @@ export function CategorySelectScreen({ code, onClose }: Props) {
   const canStart = mode !== 'custom' || selected.length >= 1
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-end justify-end">
-      <div className="bg-[#0F0F0F] rounded-t-3xl w-full max-h-[90vh] overflow-y-auto p-6 flex flex-col gap-5">
+    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col justify-end animate-backdrop-in">
+      <div className="bg-[#0F0F0F] rounded-t-3xl w-full max-h-[90dvh] flex flex-col animate-sheet-in">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-5">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-black text-white">{tr('gameSetup')}</h2>
           <button onClick={onClose} className="text-gray-400 text-xl w-8 h-8 flex items-center justify-center">✕</button>
@@ -179,19 +180,24 @@ export function CategorySelectScreen({ code, onClose }: Props) {
           </div>
         )}
 
-        <button
-          onClick={startGame}
-          disabled={!canStart || loading}
-          className="btn-shine w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all disabled:opacity-40"
+        </div>
+
+        {/* Pinned footer — always visible, never scrolls out of bounds */}
+        <div
+          className="shrink-0 border-t border-white/5 px-6 pt-4"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.5rem)' }}
         >
-          {loading ? tr('starting') : tr('startGameTpl', { n: questionCount })}
-        </button>
-
-        {!canStart && mode === 'custom' && (
-          <p className="text-center text-gray-500 text-xs -mt-3">{tr('selectAtLeast1')}</p>
-        )}
-
-        <div className="h-safe-area-bottom" />
+          {!canStart && mode === 'custom' && (
+            <p className="text-center text-gray-500 text-xs mb-2">{tr('selectAtLeast1')}</p>
+          )}
+          <button
+            onClick={startGame}
+            disabled={!canStart || loading}
+            className="btn-shine w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all disabled:opacity-40"
+          >
+            {loading ? tr('starting') : tr('startGameTpl', { n: questionCount })}
+          </button>
+        </div>
       </div>
     </div>
   )
