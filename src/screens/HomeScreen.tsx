@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getSavedProfile } from '../utils/profileUtils'
 import type { PlayerProfile } from '../utils/profileUtils'
+import { getSettings, saveSettings } from '../utils/settingsUtils'
 import { ProfileModal } from '../components/ProfileModal'
 import { SettingsModal } from '../components/SettingsModal'
 import { AmbientBackground } from '../components/AmbientBackground'
-import { playTrack } from '../music'
+import { playTrack, setMusicEnabled } from '../music'
 import { useT } from '../i18n'
 
 function AlienIcon({ className }: { className?: string }) {
@@ -66,8 +67,16 @@ export function HomeScreen() {
   const [showProfile, setShowProfile] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [profile, setProfile] = useState<PlayerProfile>(getSavedProfile)
+  const [musicOn, setMusicOn] = useState(() => getSettings().musicEnabled)
 
   useEffect(() => { playTrack('home') }, [])
+
+  const toggleMusic = () => {
+    const next = !musicOn
+    setMusicOn(next)
+    saveSettings({ ...getSettings(), musicEnabled: next })
+    setMusicEnabled(next)
+  }
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
@@ -79,7 +88,7 @@ export function HomeScreen() {
         />
       )}
       {showSettings && (
-        <SettingsModal onClose={() => setShowSettings(false)} />
+        <SettingsModal onClose={() => { setShowSettings(false); setMusicOn(getSettings().musicEnabled) }} />
       )}
 
       {/* About */}
@@ -177,6 +186,27 @@ export function HomeScreen() {
         <AlienIcon className="w-4 h-4 text-gray-600" />
         <span className="animate-blink-cursor">▮</span>
       </div>
+
+      {/* Music mute / unmute */}
+      <button
+        onClick={toggleMusic}
+        aria-label={musicOn ? 'Mute music' : 'Play music'}
+        className="absolute bottom-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-[#1A1A1A] border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+      >
+        {musicOn ? (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
+        )}
+      </button>
     </div>
   )
 }
