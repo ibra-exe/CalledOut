@@ -70,6 +70,14 @@ export function GameScreen() {
     if (me?.isKicked) navigate('/')
   }, [me?.isKicked, navigate])
 
+  // Don't let the host play alone — if everyone else leaves, return to the lobby
+  useEffect(() => {
+    if (!isHost || room?.status !== 'playing') return
+    if (activePlayers.length < 2) {
+      update(ref(db, `rooms/${code}`), { status: 'lobby', votes: null })
+    }
+  }, [isHost, room?.status, activePlayers.length, code])
+
   // Auto-advance when all votes are in (only when revoting is disabled)
   useEffect(() => {
     if (allowRevoting) return

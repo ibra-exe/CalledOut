@@ -44,6 +44,15 @@ export function RevealScreen() {
     if (me?.isKicked) navigate('/')
   }, [me?.isKicked, navigate])
 
+  // Don't let the host sit alone — if everyone else leaves, return to the lobby
+  useEffect(() => {
+    if (!isHost || room?.status !== 'reveal') return
+    const activeCount = Object.values(players).filter(p => !p.isKicked && p.name.trim()).length
+    if (activeCount < 2) {
+      update(ref(db, `rooms/${code}`), { status: 'lobby', votes: null })
+    }
+  }, [isHost, room?.status, players, code])
+
   useEffect(() => {
     if (room?.status === 'reveal' && !revealed) {
       playResultsReveal()
