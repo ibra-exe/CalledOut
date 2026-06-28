@@ -23,6 +23,7 @@ export interface Question {
   category: string
   arConfirmed?: boolean // admin has verified the Arabic translation
   userSuggested?: boolean // came from a player suggestion, approved by admin
+  suggestedBy?: string // name of the person who suggested it
 }
 
 // The active question stored on the room during play (display shape)

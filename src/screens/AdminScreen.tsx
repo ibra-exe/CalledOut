@@ -92,7 +92,7 @@ export function AdminScreen() {
   // ── question CRUD ──
   const startAdd = () => {
     setOrigLoc(null)
-    setEditing({ id: '', en: '', ar: '', category: filter !== 'all' ? filter : 'spicy', arConfirmed: false })
+    setEditing({ id: '', en: '', ar: '', category: filter !== 'all' ? filter : 'spicy', arConfirmed: false, userSuggested: false, suggestedBy: '' })
   }
   const toggleConfirmed = (q: Question) => adminSetArConfirmed(q.category, q.id, !q.arConfirmed)
   const startEdit = (q: Question) => {
@@ -240,7 +240,7 @@ export function AdminScreen() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[#FFE500] text-[10px] font-bold uppercase tracking-wide">{catLabel(q.category)}</span>
-                  {q.userSuggested && <span className="text-[#B79CFF] text-[10px] font-bold uppercase tracking-wide">✨ User Suggested</span>}
+                  {q.userSuggested && <span className="text-[#B79CFF] text-[10px] font-bold uppercase tracking-wide">✨ User Suggested{q.suggestedBy ? ` · ${q.suggestedBy}` : ''}</span>}
                 </div>
                 <div className="flex gap-3">
                   <button onClick={() => startEdit(q)} className="text-gray-400 text-xs hover:text-white">Edit</button>
@@ -282,12 +282,31 @@ export function AdminScreen() {
             <textarea value={editing.en} onChange={e => setEditing({ ...editing, en: e.target.value })} rows={2} placeholder="Who is most likely to…" className="w-full mt-1 mb-4 py-3 px-3 bg-[#0F0F0F] rounded-xl text-white text-sm border border-white/10 focus:border-[#FFE500] outline-none placeholder-gray-600 resize-none" />
             <label className="text-gray-400 text-xs font-semibold">Arabic (Saudi)</label>
             <textarea value={editing.ar} onChange={e => setEditing({ ...editing, ar: e.target.value })} rows={2} dir="rtl" placeholder="مين فينا…" className="w-full mt-1 mb-4 py-3 px-3 bg-[#0F0F0F] rounded-xl text-white text-sm border border-white/10 focus:border-[#FFE500] outline-none placeholder-gray-600 resize-none" />
-            <button onClick={() => setEditing({ ...editing, arConfirmed: !editing.arConfirmed })} className="w-full flex items-center justify-between p-3 bg-[#0F0F0F] rounded-xl mb-5 border border-white/10">
+            <button onClick={() => setEditing({ ...editing, arConfirmed: !editing.arConfirmed })} className="w-full flex items-center justify-between p-3 bg-[#0F0F0F] rounded-xl mb-3 border border-white/10">
               <span className="text-white text-sm font-semibold">Arabic confirmed</span>
               <span className={`relative w-12 h-6 rounded-full transition-colors ${editing.arConfirmed ? 'bg-[#4CAF50]' : 'bg-white/20'}`}>
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${editing.arConfirmed ? 'translate-x-6' : 'translate-x-0'}`} />
               </span>
             </button>
+
+            <button onClick={() => setEditing({ ...editing, userSuggested: !editing.userSuggested })} className={`w-full flex items-center justify-between p-3 bg-[#0F0F0F] rounded-xl border border-white/10 ${editing.userSuggested ? 'mb-3' : 'mb-5'}`}>
+              <span className="text-white text-sm font-semibold">✨ User Suggested</span>
+              <span className={`relative w-12 h-6 rounded-full transition-colors ${editing.userSuggested ? 'bg-[#9C7BFF]' : 'bg-white/20'}`}>
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${editing.userSuggested ? 'translate-x-6' : 'translate-x-0'}`} />
+              </span>
+            </button>
+
+            {editing.userSuggested && (
+              <input
+                type="text"
+                value={editing.suggestedBy ?? ''}
+                onChange={e => setEditing({ ...editing, suggestedBy: e.target.value.slice(0, 30) })}
+                placeholder="Suggested by (name)"
+                maxLength={30}
+                className="w-full mb-5 py-3 px-3 bg-[#0F0F0F] rounded-xl text-white text-sm border border-white/10 focus:border-[#9C7BFF] outline-none placeholder-gray-600"
+              />
+            )}
+
             <div className="flex gap-3">
               <button onClick={() => setEditing(null)} className="flex-1 py-3 rounded-xl bg-white/5 text-gray-300 font-bold text-sm border border-white/10">Cancel</button>
               <button onClick={saveEditing} disabled={!editing.en.trim() || busy} className="flex-1 py-3 rounded-xl bg-[#FFE500] text-[#0F0F0F] font-black text-sm disabled:opacity-40">{busy ? 'Saving…' : 'Save'}</button>

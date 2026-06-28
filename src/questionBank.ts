@@ -7,7 +7,7 @@ import type { Question, Suggestion } from './types'
 // The static QUESTIONS bundle is the default bank. The admin panel can seed an
 // editable copy into Firebase; once seeded, games read from there instead.
 
-type BankNode = Record<string, { en: string; ar: string; arConfirmed?: boolean; userSuggested?: boolean }>
+type BankNode = Record<string, { en: string; ar: string; arConfirmed?: boolean; userSuggested?: boolean; suggestedBy?: string }>
 type Bank = Record<string, BankNode>
 
 const ALL_CATEGORY_IDS = CATEGORIES.map(c => c.id)
@@ -67,7 +67,9 @@ export async function fetchQuestionsForGame(categoryIds: string[]): Promise<Ques
 // ── Admin CRUD ──
 export function adminUpsertQuestion(q: Question): Promise<void> {
   return set(ref(db, `questionBank/${q.category}/${q.id}`), {
-    en: q.en, ar: q.ar, arConfirmed: q.arConfirmed ?? false, userSuggested: q.userSuggested ?? false,
+    en: q.en, ar: q.ar, arConfirmed: q.arConfirmed ?? false,
+    userSuggested: q.userSuggested ?? false,
+    suggestedBy: q.userSuggested ? (q.suggestedBy ?? '').trim() : '',
   })
 }
 
@@ -87,7 +89,7 @@ export function bankToQuestions(bank: Bank | null): Question[] {
   for (const [category, node] of Object.entries(bank)) {
     if (!node) continue
     for (const [id, q] of Object.entries(node)) {
-      if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? '', category, arConfirmed: !!q.arConfirmed, userSuggested: !!q.userSuggested })
+      if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? '', category, arConfirmed: !!q.arConfirmed, userSuggested: !!q.userSuggested, suggestedBy: q.suggestedBy ?? '' })
     }
   }
   return out
@@ -131,7 +133,7 @@ export function updateSuggestion(id: string, patch: Partial<Pick<Suggestion, 'ca
 export async function approveSuggestion(s: Suggestion): Promise<void> {
   const id = genQuestionId(s.category)
   await set(ref(db, `questionBank/${s.category}/${id}`), {
-    en: s.en.trim(), ar: s.ar.trim(), arConfirmed: false, userSuggested: true,
+    en: s.en.trim(), ar: s.ar.trim(), arConfirmed: false, userSuggested: true, suggestedBy: (s.name ?? '').trim(),
   })
   await remove(ref(db, `questionSuggestions/${s.id}`))
 }
