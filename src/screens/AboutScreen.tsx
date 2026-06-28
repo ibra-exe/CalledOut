@@ -94,8 +94,8 @@ export function AboutScreen() {
         <AlienIcon className="w-4 h-4 text-[#FFE500]" />
       </a>
 
-      {/* Footer credit */}
-      <div className="mt-8 flex items-center justify-center gap-2 text-gray-600 font-mono text-xs select-none">
+      {/* Footer credit — always LTR so it never mirrors in Arabic */}
+      <div dir="ltr" className="mt-8 flex items-center justify-center gap-2 text-gray-600 font-mono text-xs select-none">
         {tr('createdBy')}
         <AlienIcon className="w-4 h-4 text-gray-600" />
       </div>

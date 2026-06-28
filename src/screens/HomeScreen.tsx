@@ -168,10 +168,11 @@ export function HomeScreen() {
         </button>
       </div>
 
-      {/* Footer credit */}
-      <div className="absolute bottom-8 flex items-center gap-2 text-gray-600 font-mono text-xs select-none">
-        <TypewriterLine key={tr('createdBy')} text={tr('createdBy')} delay={800} speed={60} />
+      {/* Footer credit — always LTR so it never mirrors in Arabic: text, alien, cursor */}
+      <div dir="ltr" className="absolute bottom-8 z-10 flex items-center gap-2 text-gray-600 font-mono text-xs select-none">
+        <TypewriterLine key={tr('createdBy')} text={tr('createdBy')} delay={800} speed={60} cursor={false} />
         <AlienIcon className="w-4 h-4 text-gray-600" />
+        <span className="animate-blink-cursor">▮</span>
       </div>
     </div>
   )
