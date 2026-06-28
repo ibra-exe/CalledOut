@@ -182,7 +182,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
         <button
           onClick={startGame}
           disabled={!canStart || loading}
-          className="w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all disabled:opacity-40"
+          className="btn-shine w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all disabled:opacity-40"
         >
           {loading ? tr('starting') : tr('startGameTpl', { n: questionCount })}
         </button>

@@ -18,7 +18,7 @@ export function QuestionCard({ text, textAr, category, questionNumber, totalQues
   const shown = lang === 'ar' && textAr ? textAr : text
 
   return (
-    <div className="bg-[#1A1A1A] rounded-3xl p-6 mx-auto w-full">
+    <div className="bg-[#1A1A1A] rounded-3xl p-6 mx-auto w-full animate-card-in">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="px-3 py-1 rounded-full bg-[#FFE500]/10 text-[#FFE500] text-xs font-bold uppercase tracking-wide">

@@ -59,6 +59,47 @@
   .h-safe-area-bottom {
     height: env(safe-area-inset-bottom, 16px);
   }
+
+  /* Question card / generic entrance */
+  .animate-card-in {
+    animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  /* Pop with a tiny overshoot (crowns, checks, badges) */
+  .animate-pop-in {
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  /* Spring entrance for list items (player cards) */
+  .animate-spring-in {
+    animation: springIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  /* Per-screen route entrance */
+  .animate-route-in {
+    animation: routeIn 0.32s ease-out both;
+  }
+  /* Slow floating ambient blobs (delay/duration set inline) */
+  .animate-float {
+    animation: floatBlob 16s ease-in-out infinite;
+  }
+  /* Timer urgency in the final seconds */
+  .animate-urgent {
+    animation: urgentPulse 0.9s ease-in-out infinite;
+  }
+  /* Loader dots */
+  .animate-loader-dot {
+    animation: loaderBounce 1.2s ease-in-out infinite;
+  }
+
+  /* Sweeping sheen for primary CTAs */
+  .btn-shine { position: relative; overflow: hidden; }
+  .btn-shine::after {
+    content: '';
+    position: absolute; top: 0; left: -80%;
+    width: 55%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-20deg);
+    animation: shine 4s ease-in-out infinite;
+    pointer-events: none;
+  }
 }
 
 @keyframes fadeIn {
@@ -73,6 +114,56 @@
 
 .animate-blink-cursor {
   animation: blinkCursor 1s step-end infinite;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(26px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes springIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes routeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(18px, -28px) scale(1.12); }
+}
+
+@keyframes urgentPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+@keyframes loaderBounce {
+  0%, 80%, 100% { transform: scale(0.4); opacity: 0.35; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shine {
+  0% { left: -80%; }
+  55%, 100% { left: 130%; }
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Scrollbar */

@@ -11,6 +11,7 @@ import { VoteButton } from '../components/VoteButton'
 import { TimerBar } from '../components/TimerBar'
 import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
+import { Loader } from '../components/Loader'
 import { tallyVotes, tallySelfVotes } from '../utils/voteUtils'
 import { useT } from '../i18n'
 import {
@@ -29,6 +30,7 @@ export function GameScreen() {
   const votes = useVotes(code, qIndex)
   const [timerKey, setTimerKey] = useState(0)
   const [showExit, setShowExit] = useState(false)
+  const [timeLow, setTimeLow] = useState(false)
   const isFirstQuestion = useRef(true)
   const hasAdvanced = useRef(false) // prevent double-fire per question
 
@@ -45,6 +47,7 @@ export function GameScreen() {
 
   useEffect(() => {
     hasAdvanced.current = false // reset guard for new question
+    setTimeLow(false)
     setTimerKey(k => k + 1)
     if (isFirstQuestion.current) {
       isFirstQuestion.current = false
@@ -83,6 +86,7 @@ export function GameScreen() {
     if (!allowRevoting && myVote) return // locked in when revoting is off
     if (myVote === votedFor) return // already selected, no change
     playVoteCast()
+    navigator.vibrate?.(12) // haptic feedback on mobile
     await set(ref(db, `rooms/${code}/votes/${qIndex}/${playerId}`), votedFor)
   }
 
@@ -106,6 +110,7 @@ export function GameScreen() {
   }, [advanceToReveal])
 
   const handleTick = useCallback((remaining: number) => {
+    setTimeLow(remaining <= 5 && remaining > 0)
     if (remaining <= 5 && remaining > 0) playTimerTick()
   }, [])
 
@@ -132,13 +137,21 @@ export function GameScreen() {
     )
   }
 
-  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
+  if (!room) return <Loader label={tr('loading')} />
 
   const totalQuestions = Object.keys(room.questionHistory ?? {}).length
   const question = room.currentQuestion
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex flex-col">
+      {/* Red edge glow in the final seconds */}
+      {timeLow && (
+        <div
+          className="pointer-events-none fixed inset-0 z-40 animate-urgent"
+          style={{ boxShadow: 'inset 0 0 90px rgba(255,77,77,0.4)' }}
+          aria-hidden
+        />
+      )}
       {showExit && (
         <ExitModal
           isHost={isHost}
@@ -170,6 +183,7 @@ export function GameScreen() {
         </div>
 
         <QuestionCard
+          key={qIndex}
           text={question.text}
           textAr={question.textAr}
           category={question.category}

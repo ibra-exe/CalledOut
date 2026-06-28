@@ -15,6 +15,7 @@ import { QRDisplay } from '../components/QRDisplay'
 import { CategorySelectScreen } from './CategorySelectScreen'
 import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
+import { Loader } from '../components/Loader'
 import { useT } from '../i18n'
 
 export function LobbyScreen() {
@@ -109,7 +110,7 @@ export function LobbyScreen() {
   const showProfileSection = !!me && !me.name?.trim() && !getSavedProfile().name.trim()
 
   if (roomLoading) {
-    return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
+    return <Loader label={tr('loading')} />
   }
   if (notFound) {
     return (

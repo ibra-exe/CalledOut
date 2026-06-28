@@ -5,6 +5,7 @@ import { db } from '../firebase'
 import { generateCode, getOrCreatePlayerId } from '../utils/roomUtils'
 import { getSavedProfile } from '../utils/profileUtils'
 import { QRDisplay } from '../components/QRDisplay'
+import { Loader } from '../components/Loader'
 import { useT } from '../i18n'
 
 export function CreateRoomScreen() {
@@ -49,11 +50,7 @@ export function CreateRoomScreen() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center">
-        <div className="text-white text-lg font-semibold animate-pulse">{tr('creatingRoom')}</div>
-      </div>
-    )
+    return <Loader label={tr('creatingRoom')} />
   }
 
   const joinUrl = `${window.location.origin}/join/${code}`

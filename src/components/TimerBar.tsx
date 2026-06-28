@@ -39,11 +39,12 @@ export function TimerBar({ durationSeconds, onExpire, onTick, running }: Props) 
 
   const pct = (remaining / durationSeconds) * 100
   const color = pct > 50 ? '#FFE500' : pct > 25 ? '#FF9F1C' : '#FF4D4D'
+  const urgent = running && remaining > 0 && remaining <= 5
 
   return (
     <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
       <div
-        className="h-full rounded-full transition-all duration-1000 ease-linear"
+        className={`h-full rounded-full transition-all duration-1000 ease-linear ${urgent ? 'animate-urgent' : ''}`}
         style={{ width: `${pct}%`, backgroundColor: color }}
       />
     </div>

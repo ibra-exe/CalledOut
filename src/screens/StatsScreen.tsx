@@ -7,6 +7,8 @@ import { usePlayers } from '../hooks/usePlayers'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { assignTitles } from '../utils/statsUtils'
 import { playGameOver, playTitleAssigned } from '../utils/soundUtils'
+import { Loader } from '../components/Loader'
+import { AmbientBackground } from '../components/AmbientBackground'
 import { useT } from '../i18n'
 
 // Keyed by titleId (see statsUtils TITLE_DEFS)
@@ -95,12 +97,14 @@ export function StatsScreen() {
     navigate('/')
   }
 
-  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
+  if (!room) return <Loader label={tr('loading')} />
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-4 pt-10 pb-10">
+    <div className="relative overflow-hidden min-h-screen bg-[#0F0F0F] flex flex-col px-4 pt-10 pb-10">
+      <AmbientBackground />
+      <div className="relative z-10 flex flex-col">
       <div className="text-center mb-8">
-        <div className="text-5xl mb-3">🎤</div>
+        <div className="text-5xl mb-3 animate-pop-in">🎤</div>
         <h1 className="text-3xl font-black text-white">{tr('verdictIn')}</h1>
         <p className="text-gray-500 text-sm mt-2">{tr('howCalledOut')}</p>
       </div>
@@ -178,6 +182,7 @@ export function StatsScreen() {
           {tr('leaveGame')}
         </button>
       )}
+      </div>
     </div>
   )
 }

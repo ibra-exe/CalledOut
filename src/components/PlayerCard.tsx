@@ -19,7 +19,7 @@ export function PlayerCard({ player, size = 'md', showName = true, votes, isWinn
   const s = sizes[size]
 
   return (
-    <div className={`flex items-center ${s.card} rounded-2xl bg-[#1A1A1A] relative ${isWinner ? 'ring-2 ring-[#FFE500]' : ''}`}>
+    <div className={`flex items-center ${s.card} rounded-2xl bg-[#1A1A1A] relative animate-spring-in ${isWinner ? 'ring-2 ring-[#FFE500]' : ''}`}>
       <div
         className={`${s.avatar} rounded-full flex items-center justify-center flex-shrink-0`}
         style={{ backgroundColor: player.color + '33', border: `2px solid ${player.color}` }}

@@ -4,6 +4,7 @@ import { getSavedProfile } from '../utils/profileUtils'
 import type { PlayerProfile } from '../utils/profileUtils'
 import { ProfileModal } from '../components/ProfileModal'
 import { SettingsModal } from '../components/SettingsModal'
+import { AmbientBackground } from '../components/AmbientBackground'
 import { useT } from '../i18n'
 
 function AlienIcon({ className }: { className?: string }) {
@@ -66,7 +67,8 @@ export function HomeScreen() {
   const [profile, setProfile] = useState<PlayerProfile>(getSavedProfile)
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 py-12 relative">
+    <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
+      <AmbientBackground />
       {showProfile && (
         <ProfileModal
           onClose={() => setShowProfile(false)}
@@ -102,7 +104,7 @@ export function HomeScreen() {
         </svg>
       </button>
 
-      <div className="text-center mb-10 animate-fade-in">
+      <div className="relative z-10 text-center mb-10 animate-fade-in">
         <div className="text-7xl mb-4">🎤</div>
         <h1 className="text-5xl font-black text-white mb-2 tracking-tight">
           Called<span className="text-[#FFE500]"> Out</span>
@@ -119,7 +121,7 @@ export function HomeScreen() {
         </div>
       </div>
 
-      <div className="w-full max-w-sm flex flex-col gap-4">
+      <div className="relative z-10 w-full max-w-sm flex flex-col gap-4">
         {/* Profile card */}
         <button
           onClick={() => setShowProfile(true)}
@@ -148,7 +150,7 @@ export function HomeScreen() {
 
         <button
           onClick={() => navigate('/create')}
-          className="w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg tracking-wide hover:bg-yellow-300 active:scale-[0.97] transition-all"
+          className="btn-shine w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg tracking-wide hover:bg-yellow-300 active:scale-[0.97] transition-all"
         >
           {tr('createRoom')}
         </button>

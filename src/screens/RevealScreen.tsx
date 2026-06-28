@@ -13,6 +13,8 @@ import { QuestionCard } from '../components/QuestionCard'
 import { ConfettiEffect } from '../components/ConfettiEffect'
 import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
+import { Loader } from '../components/Loader'
+import { CountUp } from '../components/CountUp'
 
 export function RevealScreen() {
   const { code = '' } = useParams<{ code: string }>()
@@ -91,7 +93,9 @@ export function RevealScreen() {
     navigate('/')
   }
 
-  if (!room) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white animate-pulse">{tr('loading')}</div>
+  if (!room) return <Loader label={tr('loading')} />
+
+  const maxVotes = Math.max(1, ...activePlayers.map(([pid]) => tally[pid] ?? 0))
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-4 pt-4 pb-8 gap-5">
@@ -118,6 +122,7 @@ export function RevealScreen() {
       </div>
 
       <QuestionCard
+        key={qIndex}
         text={room.currentQuestion.text}
         textAr={room.currentQuestion.textAr}
         category={room.currentQuestion.category}
@@ -129,29 +134,39 @@ export function RevealScreen() {
       {/* Results */}
       <div className="flex flex-col gap-3">
         <p className="text-gray-500 text-xs uppercase tracking-wide font-semibold">{tr('results')}</p>
-        {activePlayers.map(([pid, player]) => {
+        {activePlayers.map(([pid, player], idx) => {
           const v = tally[pid] ?? 0
           const isWinner = winners.includes(pid)
           return (
             <div
               key={pid}
-              className={`flex items-center gap-3 p-4 rounded-2xl transition-all duration-500 ${
-                isWinner ? 'bg-[#FFE500]/10 ring-2 ring-[#FFE500]' : 'bg-[#1A1A1A]'
+              className={`relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl bg-[#1A1A1A] transition-all duration-500 ${
+                isWinner ? 'ring-2 ring-[#FFE500]' : ''
               } ${revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-              style={{ transitionDelay: `${activePlayers.findIndex(([id]) => id === pid) * 80}ms` }}
+              style={{ transitionDelay: `${idx * 80}ms` }}
             >
+              {/* Vote-proportional bar that grows on reveal */}
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
+                className="absolute top-0 bottom-0 transition-all duration-700 ease-out"
+                style={{
+                  insetInlineStart: 0,
+                  width: revealed ? `${(v / maxVotes) * 100}%` : '0%',
+                  backgroundColor: isWinner ? 'rgba(255,229,0,0.16)' : 'rgba(255,255,255,0.06)',
+                  transitionDelay: `${idx * 80 + 150}ms`,
+                }}
+              />
+              <div
+                className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
                 style={{ backgroundColor: player.color + '33', border: `2px solid ${player.color}` }}
               >
                 {player.icon}
               </div>
-              <div className="flex-1">
+              <div className="relative z-10 flex-1">
                 <p className={`font-bold text-white ${player.font}`}>{player.name}</p>
-                <p className="text-gray-400 text-sm">{v} {v !== 1 ? tr('votePlural') : tr('voteSingular')}</p>
+                <p className="text-gray-400 text-sm"><CountUp end={v} active={revealed} /> {v !== 1 ? tr('votePlural') : tr('voteSingular')}</p>
               </div>
               {isWinner && v > 0 && (
-                <span className="text-2xl">{winners.length > 1 ? '🤝' : '👑'}</span>
+                <span className="relative z-10 text-2xl animate-pop-in" style={{ animationDelay: `${idx * 80 + 400}ms` }}>{winners.length > 1 ? '🤝' : '👑'}</span>
               )}
             </div>
           )
@@ -173,7 +188,7 @@ export function RevealScreen() {
       {isHost ? (
         <button
           onClick={nextQuestion}
-          className="mt-auto w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all"
+          className="btn-shine mt-auto w-full py-5 rounded-2xl bg-[#FFE500] text-[#0F0F0F] font-black text-lg hover:bg-yellow-300 active:scale-[0.97] transition-all"
         >
           {isLastQuestion ? tr('seeFinalStats') : tr('nextQuestion')}
         </button>
