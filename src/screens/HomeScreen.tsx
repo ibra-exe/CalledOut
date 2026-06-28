@@ -5,6 +5,7 @@ import type { PlayerProfile } from '../utils/profileUtils'
 import { ProfileModal } from '../components/ProfileModal'
 import { SettingsModal } from '../components/SettingsModal'
 import { AmbientBackground } from '../components/AmbientBackground'
+import { playTrack } from '../music'
 import { useT } from '../i18n'
 
 function AlienIcon({ className }: { className?: string }) {
@@ -65,6 +66,8 @@ export function HomeScreen() {
   const [showProfile, setShowProfile] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [profile, setProfile] = useState<PlayerProfile>(getSavedProfile)
+
+  useEffect(() => { playTrack('home') }, [])
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">

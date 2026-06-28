@@ -5,6 +5,7 @@ import { getSettings, saveSettings } from '../utils/settingsUtils'
 import type { AppSettings } from '../utils/settingsUtils'
 import { getLang, setLang, useT } from '../i18n'
 import type { Lang } from '../i18n'
+import { setMusicEnabled } from '../music'
 import { ProfileModal } from './ProfileModal'
 import type { PlayerProfile } from '../utils/profileUtils'
 
@@ -31,6 +32,12 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
   const changeLang = (next: Lang) => {
     setLangState(next)
     setLang(next)
+  }
+
+  const toggleMusic = () => {
+    const next = !settings.musicEnabled
+    update_({ musicEnabled: next })
+    setMusicEnabled(next)
   }
 
   const handleProfileSave = (profile: PlayerProfile) => {
@@ -112,6 +119,25 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
           >
             <span
               className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${settings.soundEnabled ? 'translate-x-7' : 'translate-x-0'}`}
+            />
+          </button>
+        </div>
+
+        {/* Music */}
+        <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-2xl mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{settings.musicEnabled ? '🎵' : '🔕'}</span>
+            <div>
+              <p className="text-white font-semibold text-sm">{tr('music')}</p>
+              <p className="text-gray-500 text-xs">{tr('musicDesc')}</p>
+            </div>
+          </div>
+          <button
+            onClick={toggleMusic}
+            className={`relative w-14 h-7 rounded-full flex-shrink-0 transition-colors duration-200 ${settings.musicEnabled ? 'bg-[#FFE500]' : 'bg-white/20'}`}
+          >
+            <span
+              className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${settings.musicEnabled ? 'translate-x-7' : 'translate-x-0'}`}
             />
           </button>
         </div>

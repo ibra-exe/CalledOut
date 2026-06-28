@@ -9,6 +9,7 @@ import { assignTitles } from '../utils/statsUtils'
 import { playGameOver, playTitleAssigned } from '../utils/soundUtils'
 import { Loader } from '../components/Loader'
 import { AmbientBackground } from '../components/AmbientBackground'
+import { playTrack } from '../music'
 import { useT } from '../i18n'
 
 // Keyed by titleId (see statsUtils TITLE_DEFS)
@@ -42,6 +43,8 @@ export function StatsScreen() {
 
   const me = players[playerId]
   const isHost = me?.isHost ?? false
+
+  useEffect(() => { playTrack('home') }, [])
 
   // Room deleted (host ended game) → go home
   useEffect(() => {

@@ -16,6 +16,7 @@ import { CategorySelectScreen } from './CategorySelectScreen'
 import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
 import { Loader } from '../components/Loader'
+import { playTrack } from '../music'
 import { useT } from '../i18n'
 
 export function LobbyScreen() {
@@ -38,6 +39,8 @@ export function LobbyScreen() {
 
   const me = players[playerId]
   const isHost = me?.isHost ?? false
+
+  useEffect(() => { playTrack('home') }, [])
 
   // Play a sound when a new player joins
   const knownPlayerIds = useRef<Set<string>>(new Set())

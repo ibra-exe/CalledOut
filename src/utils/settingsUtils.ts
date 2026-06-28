@@ -1,9 +1,10 @@
 export interface AppSettings {
   soundEnabled: boolean
+  musicEnabled: boolean
 }
 
 const KEY = 'calledout_settings'
-const DEFAULT: AppSettings = { soundEnabled: true }
+const DEFAULT: AppSettings = { soundEnabled: true, musicEnabled: true }
 
 export function getSettings(): AppSettings {
   try {

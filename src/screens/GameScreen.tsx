@@ -12,6 +12,7 @@ import { TimerBar } from '../components/TimerBar'
 import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
 import { Loader } from '../components/Loader'
+import { playTrack } from '../music'
 import { tallyVotes, tallySelfVotes } from '../utils/voteUtils'
 import { useT } from '../i18n'
 import {
@@ -44,6 +45,8 @@ export function GameScreen() {
 
   const timerSeconds = room?.settings?.timerSeconds ?? 15
   const allowRevoting = room?.settings?.allowRevoting ?? false
+
+  useEffect(() => { playTrack('game') }, [])
 
   useEffect(() => {
     hasAdvanced.current = false // reset guard for new question

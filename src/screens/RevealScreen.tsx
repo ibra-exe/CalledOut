@@ -15,6 +15,7 @@ import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
 import { Loader } from '../components/Loader'
 import { CountUp } from '../components/CountUp'
+import { playTrack } from '../music'
 
 export function RevealScreen() {
   const { code = '' } = useParams<{ code: string }>()
@@ -30,6 +31,8 @@ export function RevealScreen() {
 
   const me = players[playerId]
   const isHost = me?.isHost ?? false
+
+  useEffect(() => { playTrack('game') }, [])
 
   // Only navigate to lobby — GameRouter handles the playing/stats transitions
   useEffect(() => {
