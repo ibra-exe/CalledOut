@@ -4,6 +4,8 @@ import { ref, update, remove } from 'firebase/database'
 import { db } from '../firebase'
 import { useRoom } from '../hooks/useRoom'
 import { usePlayers } from '../hooks/usePlayers'
+import { usePresence } from '../hooks/usePresence'
+import { prefetchGame } from './prefetch'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { getSavedProfile, saveProfileLocally } from '../utils/profileUtils'
 import { playPlayerJoin, playProfileSaved } from '../utils/soundUtils'
@@ -15,6 +17,7 @@ import { QRDisplay } from '../components/QRDisplay'
 import { CategorySelectScreen } from './CategorySelectScreen'
 import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
+import { ConnectionBanner } from '../components/ConnectionBanner'
 import { Loader } from '../components/Loader'
 import { playTrack } from '../music'
 import { useT } from '../i18n'
@@ -40,7 +43,10 @@ export function LobbyScreen() {
   const me = players[playerId]
   const isHost = me?.isHost ?? false
 
-  useEffect(() => { playTrack('home') }, [])
+  // Auto-remove this player on disconnect so they don't linger as a ghost
+  usePresence(code, playerId, !!me && !me.isHost)
+
+  useEffect(() => { playTrack('home'); prefetchGame() }, [])
 
   // Play a sound when a new player joins
   const knownPlayerIds = useRef<Set<string>>(new Set())
@@ -117,7 +123,7 @@ export function LobbyScreen() {
   }
   if (notFound) {
     return (
-      <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center gap-4 px-6">
+      <div className="min-h-dvh bg-[#0F0F0F] flex flex-col items-center justify-center gap-4 px-6">
         <p className="text-white text-xl font-bold">{tr('roomNotFound')}</p>
         <button onClick={() => navigate('/')} className="text-[#FFE500] text-sm">← {tr('goHome')}</button>
       </div>
@@ -127,7 +133,8 @@ export function LobbyScreen() {
   const joinUrl = `${window.location.origin}/join/${code}`
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col pb-6">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col pb-6 safe-top safe-bottom">
+      <ConnectionBanner />
       {showCategorySelect && (
         <CategorySelectScreen
           code={code}
@@ -149,7 +156,7 @@ export function LobbyScreen() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowExit(true)}
-              className="text-gray-500 hover:text-white transition-colors text-sm font-semibold"
+              className="text-gray-400 hover:text-white transition-colors text-sm font-semibold"
             >
               ← {tr('back')}
             </button>
@@ -194,7 +201,7 @@ export function LobbyScreen() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${tab === t ? 'bg-[#1A1A1A] text-white' : 'text-gray-500'}`}
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${tab === t ? 'bg-[#1A1A1A] text-white' : 'text-gray-400'}`}
               >
                 {t === 'icon' ? `😀 ${tr('iconTab')}` : t === 'color' ? `🎨 ${tr('colorTab')}` : `🅰 ${tr('fontTab')}`}
               </button>
@@ -217,7 +224,7 @@ export function LobbyScreen() {
 
       {/* Players list */}
       <div className="px-4 flex-1">
-        <p className="text-gray-500 text-xs uppercase tracking-wide mb-3 font-semibold">
+        <p className="text-gray-400 text-xs uppercase tracking-wide mb-3 font-semibold">
           {tr('players')} ({Object.values(players).filter(p => !p.isKicked).length})
         </p>
         <div className="flex flex-col gap-2">
@@ -246,14 +253,14 @@ export function LobbyScreen() {
             {tr('chooseCategories')} →
           </button>
           {!canStart && (
-            <p className="text-center text-gray-500 text-xs mt-2">{tr('need2Players')}</p>
+            <p className="text-center text-gray-400 text-xs mt-2">{tr('need2Players')}</p>
           )}
         </div>
       )}
 
       {!isHost && (
         <div className="px-4 mt-6 text-center">
-          <p className="text-gray-500 text-sm">{tr('waitingHostStart')}</p>
+          <p className="text-gray-400 text-sm">{tr('waitingHostStart')}</p>
         </div>
       )}
     </div>

@@ -4,6 +4,8 @@ import { ref, update, remove } from 'firebase/database'
 import { db } from '../firebase'
 import { useRoom } from '../hooks/useRoom'
 import { usePlayers } from '../hooks/usePlayers'
+import { usePresence } from '../hooks/usePresence'
+import { prefetchStats } from './prefetch'
 import { useVotes } from '../hooks/useVotes'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { tallyVotes, getWinners } from '../utils/voteUtils'
@@ -15,13 +17,14 @@ import { ExitModal } from '../components/ExitModal'
 import { SettingsButton } from '../components/SettingsButton'
 import { Loader } from '../components/Loader'
 import { CountUp } from '../components/CountUp'
+import { Avatar } from '../components/Avatar'
 import { playTrack } from '../music'
 
 export function RevealScreen() {
   const { code = '' } = useParams<{ code: string }>()
   const navigate = useNavigate()
   const tr = useT()
-  const { room } = useRoom(code)
+  const { room, notFound } = useRoom(code)
   const { players } = usePlayers(code)
   const playerId = getOrCreatePlayerId()
   const qIndex = room?.currentQuestionIndex ?? 0
@@ -32,7 +35,10 @@ export function RevealScreen() {
   const me = players[playerId]
   const isHost = me?.isHost ?? false
 
-  useEffect(() => { playTrack('game') }, [])
+  // Auto-remove this player on disconnect so they don't linger as a ghost
+  usePresence(code, playerId, !!me && !me.isHost)
+
+  useEffect(() => { playTrack('game'); prefetchStats() }, [])
 
   // Only navigate to lobby — GameRouter handles the playing/stats transitions
   useEffect(() => {
@@ -105,12 +111,21 @@ export function RevealScreen() {
     navigate('/')
   }
 
+  if (notFound) {
+    return (
+      <div className="min-h-dvh bg-[#0F0F0F] flex flex-col items-center justify-center gap-4 px-6">
+        <p className="text-white text-xl font-bold">{tr('roomNotFound')}</p>
+        <button onClick={() => navigate('/')} className="text-[#FFE500] text-sm">{tr('goHome')}</button>
+      </div>
+    )
+  }
+
   if (!room) return <Loader label={tr('loading')} />
 
   const maxVotes = Math.max(1, ...activePlayers.map(([pid]) => tally[pid] ?? 0))
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-4 pt-4 pb-8 gap-5">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col px-4 pt-4 pb-8 gap-5 safe-top safe-bottom">
       {showExit && (
         <ExitModal
           isHost={isHost}
@@ -127,7 +142,7 @@ export function RevealScreen() {
         <SettingsButton code={code} playerId={playerId} />
         <button
           onClick={() => setShowExit(true)}
-          className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-500 text-xs font-semibold hover:text-white hover:bg-white/10 transition-all"
+          className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-semibold hover:text-white hover:bg-white/10 transition-all"
         >
           {tr('leave')}
         </button>
@@ -145,7 +160,7 @@ export function RevealScreen() {
 
       {/* Results */}
       <div className="flex flex-col gap-3">
-        <p className="text-gray-500 text-xs uppercase tracking-wide font-semibold">{tr('results')}</p>
+        <p className="text-gray-400 text-xs uppercase tracking-wide font-semibold">{tr('results')}</p>
         {activePlayers.map(([pid, player], idx) => {
           const v = tally[pid] ?? 0
           const isWinner = winners.includes(pid)
@@ -167,12 +182,7 @@ export function RevealScreen() {
                   transitionDelay: `${idx * 80 + 150}ms`,
                 }}
               />
-              <div
-                className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
-                style={{ backgroundColor: player.color + '33', border: `2px solid ${player.color}` }}
-              >
-                {player.icon}
-              </div>
+              <Avatar icon={player.icon} color={player.color} size="md" className="relative z-10" />
               <div className="relative z-10 flex-1">
                 <p className={`font-bold text-white ${player.font}`}>{player.name}</p>
                 <p className="text-gray-400 text-sm"><CountUp end={v} active={revealed} /> {v !== 1 ? tr('votePlural') : tr('voteSingular')}</p>
@@ -205,7 +215,7 @@ export function RevealScreen() {
           {isLastQuestion ? tr('seeFinalStats') : tr('nextQuestion')}
         </button>
       ) : (
-        <div className="mt-auto text-center text-gray-500 text-sm py-4">
+        <div className="mt-auto text-center text-gray-400 text-sm py-4">
           {tr('waitingHostContinue')}
         </div>
       )}

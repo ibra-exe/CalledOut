@@ -1,4 +1,4 @@
-import { CATEGORIES } from '../questions'
+import { CATEGORIES } from '../categories'
 import { useLang, useT } from '../i18n'
 
 interface Props {
@@ -30,7 +30,7 @@ export function QuestionCard({ text, textAr, category, questionNumber, totalQues
             </span>
           )}
         </div>
-        <span className="text-gray-500 text-xs font-medium">
+        <span className="text-gray-400 text-xs font-medium">
           {questionNumber} / {totalQuestions}
         </span>
       </div>

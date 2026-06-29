@@ -5,6 +5,7 @@ import { db } from '../firebase'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { getSavedProfile } from '../utils/profileUtils'
 import { QRScanner } from '../components/QRScanner'
+import { prefetchLobby } from './prefetch'
 import { useT } from '../i18n'
 
 export function JoinRoomScreen() {
@@ -19,6 +20,7 @@ export function JoinRoomScreen() {
 
   useEffect(() => {
     if (urlCode) joinRoom(urlCode)
+    prefetchLobby() // player heads to the lobby after joining
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const joinRoom = async (roomCode: string) => {
@@ -72,7 +74,7 @@ export function JoinRoomScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-6 py-12">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col px-6 py-12">
       {showScanner && (
         <QRScanner
           onScan={async (scanned) => {

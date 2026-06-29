@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ref, onValue } from 'firebase/database'
 import { db } from '../firebase'
-import { CATEGORIES } from '../questions'
+import { CATEGORIES } from '../categories'
 import {
   seedQuestionBankIfEmpty, reseedQuestionBank,
   adminUpsertQuestion, adminDeleteQuestion, adminSetArConfirmed, bankToQuestions, genQuestionId,
@@ -133,7 +133,7 @@ export function AdminScreen() {
   // ── Password gate ──
   if (!authed) {
     return (
-      <div dir="ltr" className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 gap-5">
+      <div dir="ltr" className="min-h-dvh bg-[#0F0F0F] flex flex-col items-center justify-center px-6 gap-5">
         <div className="text-5xl">🔐</div>
         <h1 className="text-2xl font-black text-white">Admin Access</h1>
         <input
@@ -147,14 +147,14 @@ export function AdminScreen() {
         />
         {pwError && <p className="text-[#FF4D4D] text-sm">Wrong password</p>}
         <button onClick={submitPw} className="w-full max-w-xs py-3 rounded-xl bg-[#FFE500] text-[#0F0F0F] font-black hover:bg-yellow-300 active:scale-[0.98] transition-all">Unlock</button>
-        <button onClick={() => navigate('/')} className="text-gray-500 text-sm">← Back to app</button>
+        <button onClick={() => navigate('/')} className="text-gray-400 text-sm">← Back to app</button>
       </div>
     )
   }
 
   // ── Manager ──
   return (
-    <div dir="ltr" className="min-h-screen bg-[#0F0F0F] text-white pb-28">
+    <div dir="ltr" className="min-h-dvh bg-[#0F0F0F] text-white pb-28">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-[#0F0F0F]/95 backdrop-blur border-b border-white/10 px-4 pt-6 pb-3">
         <div className="flex items-center justify-between mb-3">
@@ -170,7 +170,7 @@ export function AdminScreen() {
             ) : (
               <button onClick={() => setView('bank')} className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#1A1A1A] text-gray-300 border border-white/10">← Questions</button>
             )}
-            <button onClick={logout} className="text-gray-500 text-xs hover:text-white">Lock</button>
+            <button onClick={logout} className="text-gray-400 text-xs hover:text-white">Lock</button>
           </div>
         </div>
 
@@ -207,7 +207,7 @@ export function AdminScreen() {
         <div className="px-6 py-16 text-center flex flex-col items-center gap-3">
           <div className="text-4xl">🚧</div>
           <p className="text-white font-bold">Can't reach the question bank</p>
-          <p className="text-gray-500 text-sm max-w-xs">The database rules haven't been deployed yet. Run <code className="text-gray-300">firebase deploy --only database</code>, then reload.</p>
+          <p className="text-gray-400 text-sm max-w-xs">The database rules haven't been deployed yet. Run <code className="text-gray-300">firebase deploy --only database</code>, then reload.</p>
         </div>
       ) : view === 'inbox' ? (
         <div className="px-4 pt-4 flex flex-col gap-2">
@@ -216,7 +216,7 @@ export function AdminScreen() {
             <div key={s.id} className="bg-[#1A1A1A] rounded-2xl p-4 border border-white/5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[#FFE500] text-[10px] font-bold uppercase tracking-wide">{catLabel(s.category)}</span>
-                <span className="text-gray-500 text-[10px]">by {s.name || 'anon'}</span>
+                <span className="text-gray-400 text-[10px]">by {s.name || 'anon'}</span>
               </div>
               <p className="text-white text-sm">{s.en}</p>
               <p className="text-gray-400 text-sm mt-1" dir="rtl">{s.ar || <span className="text-[#FF9F1C] italic">— no Arabic —</span>}</p>
@@ -231,7 +231,7 @@ export function AdminScreen() {
           ))}
         </div>
       ) : loading ? (
-        <div className="text-center text-gray-500 py-20 animate-pulse">Loading…</div>
+        <div className="text-center text-gray-400 py-20 animate-pulse">Loading…</div>
       ) : (
         <div className="px-4 pt-4 flex flex-col gap-2">
           {filtered.length === 0 && <p className="text-center text-gray-600 py-10 text-sm">No questions match.</p>}
@@ -251,7 +251,7 @@ export function AdminScreen() {
               <p className="text-gray-400 text-sm mt-1" dir="rtl">{q.ar || <span className="text-[#FF9F1C] italic">— no Arabic —</span>}</p>
               <button
                 onClick={() => toggleConfirmed(q)}
-                className={`mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${q.arConfirmed ? 'bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/40' : 'bg-white/5 text-gray-500 border border-white/10'}`}
+                className={`mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${q.arConfirmed ? 'bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/40' : 'bg-white/5 text-gray-400 border border-white/10'}`}
               >
                 {q.arConfirmed ? '✓ Arabic confirmed' : 'Arabic unconfirmed'}
               </button>
@@ -322,7 +322,7 @@ export function AdminScreen() {
           <div className="bg-[#1A1A1A] rounded-t-3xl p-5 w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
             <h2 className="text-lg font-black mb-1">Edit Suggestion</h2>
-            <p className="text-gray-500 text-xs mb-4">by {editSug.name || 'anon'}</p>
+            <p className="text-gray-400 text-xs mb-4">by {editSug.name || 'anon'}</p>
             <label className="text-gray-400 text-xs font-semibold">Category</label>
             <select value={editSug.category} onChange={e => setEditSug({ ...editSug, category: e.target.value })} className="w-full mt-1 mb-4 py-3 px-3 bg-[#0F0F0F] rounded-xl text-white text-sm border border-white/10 focus:border-[#FFE500] outline-none">
               {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>)}

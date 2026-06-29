@@ -56,8 +56,8 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col justify-end" onClick={onClose}>
-      <div className="bg-[#1A1A1A] rounded-t-3xl p-4 w-full" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col justify-end animate-backdrop-in" onClick={onClose}>
+      <div className="bg-[#1A1A1A] rounded-t-3xl p-4 w-full animate-sheet-in" onClick={e => e.stopPropagation()}>
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
 
         <div className="flex items-center justify-between mb-6">
@@ -75,7 +75,7 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
               <span className="text-2xl">🙂</span>
               <p className="text-white font-semibold text-sm">{tr('yourProfile')}</p>
             </div>
-            <span className="text-gray-500 text-sm">{tr('edit')} →</span>
+            <span className="text-gray-400 text-sm">{tr('edit')} →</span>
           </button>
         )}
 
@@ -85,7 +85,7 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
             <span className="text-2xl">🌐</span>
             <div>
               <p className="text-white font-semibold text-sm">{tr('language')}</p>
-              <p className="text-gray-500 text-xs">{tr('languageDesc')}</p>
+              <p className="text-gray-400 text-xs">{tr('languageDesc')}</p>
             </div>
           </div>
           <div className="flex gap-1 bg-[#1A1A1A] rounded-xl p-1 flex-shrink-0">
@@ -110,7 +110,7 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
             <span className="text-2xl">{settings.soundEnabled ? '🔊' : '🔇'}</span>
             <div>
               <p className="text-white font-semibold text-sm">{tr('soundEffects')}</p>
-              <p className="text-gray-500 text-xs">{tr('soundDesc')}</p>
+              <p className="text-gray-400 text-xs">{tr('soundDesc')}</p>
             </div>
           </div>
           <button
@@ -129,7 +129,7 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
             <span className="text-2xl">{settings.musicEnabled ? '🎵' : '🔕'}</span>
             <div>
               <p className="text-white font-semibold text-sm">{tr('music')}</p>
-              <p className="text-gray-500 text-xs">{tr('musicDesc')}</p>
+              <p className="text-gray-400 text-xs">{tr('musicDesc')}</p>
             </div>
           </div>
           <button

@@ -31,8 +31,8 @@ export function ProfileModal({ onClose, onSave }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col justify-end" onClick={onClose}>
-      <div className="bg-[#1A1A1A] rounded-t-3xl p-4 w-full" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col justify-end animate-backdrop-in" onClick={onClose}>
+      <div className="bg-[#1A1A1A] rounded-t-3xl p-4 w-full animate-sheet-in" onClick={e => e.stopPropagation()}>
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
 
         <div className="flex items-center justify-between mb-4">
@@ -64,7 +64,7 @@ export function ProfileModal({ onClose, onSave }: Props) {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${tab === t ? 'bg-[#1A1A1A] text-white' : 'text-gray-500'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${tab === t ? 'bg-[#1A1A1A] text-white' : 'text-gray-400'}`}
             >
               {t === 'icon' ? `😀 ${tr('iconTab')}` : t === 'color' ? `🎨 ${tr('colorTab')}` : `🅰 ${tr('fontTab')}`}
             </button>

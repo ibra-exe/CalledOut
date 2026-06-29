@@ -1,51 +1,41 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
 import { HomeScreen } from './screens/HomeScreen'
-import { CreateRoomScreen } from './screens/CreateRoomScreen'
-import { JoinRoomScreen } from './screens/JoinRoomScreen'
-import { LobbyScreen } from './screens/LobbyScreen'
-import { GameScreen } from './screens/GameScreen'
-import { RevealScreen } from './screens/RevealScreen'
-import { StatsScreen } from './screens/StatsScreen'
-import { AboutScreen } from './screens/AboutScreen'
-import { AdminScreen } from './screens/AdminScreen'
-import { SuggestScreen } from './screens/SuggestScreen'
-import { useRoom } from './hooks/useRoom'
-import { useParams, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
 import { applyDir, useLang } from './i18n'
 import { Loader } from './components/Loader'
 
-// Smart game router: renders game or reveal based on room status
-function GameRouter() {
-  const { code = '' } = useParams<{ code: string }>()
-  const { room, loading } = useRoom(code)
-
-  if (loading) return <Loader />
-  if (!room) return <Navigate to="/" />
-  if (room.status === 'reveal') return <RevealScreen />
-  if (room.status === 'stats') return <Navigate to={`/stats/${code}`} />
-  if (room.status === 'lobby' || room.status === 'category-select') return <Navigate to={`/lobby/${code}`} />
-  return <GameScreen />
-}
+// Home is eager (it's the landing route). Everything else is lazy so the first
+// paint chunk excludes Firebase, html5-qrcode, canvas-confetti, the question
+// bank, and all non-home screen code — each loads on demand for its route.
+const CreateRoomScreen = lazy(() => import('./screens/CreateRoomScreen').then(m => ({ default: m.CreateRoomScreen })))
+const JoinRoomScreen = lazy(() => import('./screens/JoinRoomScreen').then(m => ({ default: m.JoinRoomScreen })))
+const LobbyScreen = lazy(() => import('./screens/LobbyScreen').then(m => ({ default: m.LobbyScreen })))
+const GameRouter = lazy(() => import('./screens/GameRouter').then(m => ({ default: m.GameRouter })))
+const StatsScreen = lazy(() => import('./screens/StatsScreen').then(m => ({ default: m.StatsScreen })))
+const AboutScreen = lazy(() => import('./screens/AboutScreen').then(m => ({ default: m.AboutScreen })))
+const AdminScreen = lazy(() => import('./screens/AdminScreen').then(m => ({ default: m.AdminScreen })))
+const SuggestScreen = lazy(() => import('./screens/SuggestScreen').then(m => ({ default: m.SuggestScreen })))
 
 // Plays a subtle entrance animation whenever the route (pathname) changes
 function AnimatedRoutes() {
   const location = useLocation()
   return (
     <div key={location.pathname} className="animate-route-in">
-      <Routes location={location}>
-        <Route path="/" element={<HomeScreen />} />
-        <Route path="/create" element={<CreateRoomScreen />} />
-        <Route path="/join" element={<JoinRoomScreen />} />
-        <Route path="/join/:code" element={<JoinRoomScreen />} />
-        <Route path="/lobby/:code" element={<LobbyScreen />} />
-        <Route path="/game/:code" element={<GameRouter />} />
-        <Route path="/stats/:code" element={<StatsScreen />} />
-        <Route path="/about" element={<AboutScreen />} />
-        <Route path="/admin" element={<AdminScreen />} />
-        <Route path="/suggest" element={<SuggestScreen />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      <Suspense fallback={<Loader />}>
+        <Routes location={location}>
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/create" element={<CreateRoomScreen />} />
+          <Route path="/join" element={<JoinRoomScreen />} />
+          <Route path="/join/:code" element={<JoinRoomScreen />} />
+          <Route path="/lobby/:code" element={<LobbyScreen />} />
+          <Route path="/game/:code" element={<GameRouter />} />
+          <Route path="/stats/:code" element={<StatsScreen />} />
+          <Route path="/about" element={<AboutScreen />} />
+          <Route path="/admin" element={<AdminScreen />} />
+          <Route path="/suggest" element={<SuggestScreen />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Suspense>
     </div>
   )
 }

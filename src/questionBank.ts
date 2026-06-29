@@ -1,6 +1,6 @@
 import { ref, get, set, update, remove, push } from 'firebase/database'
 import { db } from './firebase'
-import { QUESTIONS, CATEGORIES } from './questions'
+import { CATEGORIES } from './categories'
 import type { Question, Suggestion } from './types'
 
 // Firebase layout: questionBank/{category}/{id} = { en, ar, arConfirmed?, userSuggested? }
@@ -21,6 +21,7 @@ export function genQuestionId(category: string): string {
 export async function seedQuestionBankIfEmpty(): Promise<void> {
   const snap = await get(ref(db, 'questionBank'))
   if (snap.exists()) return
+  const { QUESTIONS } = await import('./questions')
   const payload: Bank = {}
   for (const q of QUESTIONS) {
     payload[q.category] ??= {}
@@ -31,6 +32,7 @@ export async function seedQuestionBankIfEmpty(): Promise<void> {
 
 // Force re-seed from the static bundle (admin "reset to defaults").
 export async function reseedQuestionBank(): Promise<void> {
+  const { QUESTIONS } = await import('./questions')
   const payload: Bank = {}
   for (const q of QUESTIONS) {
     payload[q.category] ??= {}
@@ -51,6 +53,7 @@ export async function fetchQuestionsForGame(categoryIds: string[]): Promise<Ques
     bank = null
   }
   const out: Question[] = []
+  let statics: Question[] | null = null // lazily loaded only if a category falls back
   for (const cat of cats) {
     const node = bank?.[cat]
     if (node && Object.keys(node).length > 0) {
@@ -58,7 +61,8 @@ export async function fetchQuestionsForGame(categoryIds: string[]): Promise<Ques
         if (q && q.en) out.push({ id, en: q.en, ar: q.ar ?? q.en, category: cat, userSuggested: !!q.userSuggested })
       }
     } else {
-      out.push(...QUESTIONS.filter(q => q.category === cat))
+      if (!statics) statics = (await import('./questions')).QUESTIONS
+      out.push(...statics.filter(q => q.category === cat))
     }
   }
   return out

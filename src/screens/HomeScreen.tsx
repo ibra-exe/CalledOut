@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getSavedProfile } from '../utils/profileUtils'
 import type { PlayerProfile } from '../utils/profileUtils'
 import { getSettings, saveSettings } from '../utils/settingsUtils'
 import { ProfileModal } from '../components/ProfileModal'
-import { SettingsModal } from '../components/SettingsModal'
 import { AmbientBackground } from '../components/AmbientBackground'
 import { playTrack, setMusicEnabled } from '../music'
+import { prefetchCreateJoin } from './prefetch'
 import { useT } from '../i18n'
+
+// Lazy so its Firebase import (in-room profile editing) stays off the home chunk.
+const SettingsModal = lazy(() => import('../components/SettingsModal').then(m => ({ default: m.SettingsModal })))
 
 function AlienIcon({ className }: { className?: string }) {
   return (
@@ -71,6 +74,12 @@ export function HomeScreen() {
 
   useEffect(() => { playTrack('home') }, [])
 
+  // After first paint settles, warm the Create/Join chunks so tapping a CTA is instant.
+  useEffect(() => {
+    const t = setTimeout(prefetchCreateJoin, 800)
+    return () => clearTimeout(t)
+  }, [])
+
   const toggleMusic = () => {
     const next = !musicOn
     setMusicOn(next)
@@ -79,7 +88,7 @@ export function HomeScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
       <AmbientBackground />
       {showProfile && (
         <ProfileModal
@@ -88,13 +97,16 @@ export function HomeScreen() {
         />
       )}
       {showSettings && (
-        <SettingsModal onClose={() => { setShowSettings(false); setMusicOn(getSettings().musicEnabled) }} />
+        <Suspense fallback={null}>
+          <SettingsModal onClose={() => { setShowSettings(false); setMusicOn(getSettings().musicEnabled) }} />
+        </Suspense>
       )}
 
       {/* About */}
       <button
         onClick={() => navigate('/about')}
-        className="absolute top-8 left-6 w-9 h-9 flex items-center justify-center rounded-xl bg-[#1A1A1A] border border-white/10 text-gray-500 hover:text-white hover:bg-white/10 transition-all"
+        className="absolute left-6 w-9 h-9 flex items-center justify-center rounded-xl bg-[#1A1A1A] border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+        style={{ top: 'max(2rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
         aria-label="About"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -107,7 +119,8 @@ export function HomeScreen() {
       {/* Settings gear */}
       <button
         onClick={() => setShowSettings(true)}
-        className="absolute top-8 right-6 w-9 h-9 flex items-center justify-center rounded-xl bg-[#1A1A1A] border border-white/10 text-gray-500 hover:text-white hover:bg-white/10 transition-all"
+        className="absolute right-6 w-9 h-9 flex items-center justify-center rounded-xl bg-[#1A1A1A] border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+        style={{ top: 'max(2rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
         aria-label="Settings"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -150,7 +163,7 @@ export function HomeScreen() {
               <span className={`text-white font-semibold text-sm flex-1 text-left truncate ${profile.font}`}>
                 {profile.name}
               </span>
-              <span className="text-gray-500 text-xs shrink-0">{tr('edit')} ✏</span>
+              <span className="text-gray-400 text-xs shrink-0">{tr('edit')} ✏</span>
             </>
           ) : (
             <>
@@ -174,7 +187,7 @@ export function HomeScreen() {
         </button>
         <button
           onClick={() => navigate('/suggest')}
-          className="w-full py-2 text-gray-500 text-sm font-semibold hover:text-[#FFE500] transition-colors"
+          className="w-full py-2 text-gray-400 text-sm font-semibold hover:text-[#FFE500] transition-colors"
         >
           💡 {tr('suggestQuestion')}
         </button>

@@ -24,7 +24,9 @@ function el(): HTMLAudioElement {
   if (!audio) {
     audio = new Audio()
     audio.loop = true
-    audio.preload = 'auto'
+    // 'none' so the multi-MB track isn't fetched at cold start; playback is
+    // gesture-gated anyway, so the bytes only load once play() actually fires.
+    audio.preload = 'none'
   }
   return audio
 }

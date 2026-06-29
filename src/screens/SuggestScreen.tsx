@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CATEGORIES } from '../questions'
+import { CATEGORIES } from '../categories'
 import { submitSuggestion } from '../questionBank'
 import { getSavedProfile, saveProfileLocally } from '../utils/profileUtils'
 import { playProfileSaved } from '../utils/soundUtils'
@@ -40,7 +40,7 @@ export function SuggestScreen() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 gap-5 text-center">
+      <div className="min-h-dvh bg-[#0F0F0F] flex flex-col items-center justify-center px-6 gap-5 text-center">
         <div className="text-6xl">🎉</div>
         <p className="text-white font-black text-xl max-w-xs">{tr('suggestThanks')}</p>
         <button
@@ -49,13 +49,13 @@ export function SuggestScreen() {
         >
           {tr('suggestAnother')}
         </button>
-        <button onClick={() => navigate('/')} className="text-gray-500 text-sm">← {tr('back')}</button>
+        <button onClick={() => navigate('/')} className="text-gray-400 text-sm">← {tr('back')}</button>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-6 pt-8 pb-12">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col px-6 pt-8 pb-12">
       <button
         onClick={() => navigate('/')}
         className="self-start mb-6 px-3 py-2 rounded-xl bg-[#1A1A1A] border border-white/10 text-gray-400 text-sm font-semibold hover:text-white hover:bg-white/10 transition-all"

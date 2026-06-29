@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ref, update } from 'firebase/database'
 import { db } from '../firebase'
-import { CATEGORIES, shuffleQuestions } from '../questions'
+import { CATEGORIES, shuffleQuestions } from '../categories'
 import { fetchQuestionsForGame } from '../questionBank'
 import { useT } from '../i18n'
 
@@ -120,7 +120,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
         {/* Allow revoting */}
         <div>
           <p className="text-white font-bold text-sm mb-1">{tr('allowRevoting')}</p>
-          <p className="text-gray-500 text-xs mb-3">
+          <p className="text-gray-400 text-xs mb-3">
             {allowRevoting ? tr('revotingOn') : tr('revotingOff')}
           </p>
           <div className="flex gap-2">
@@ -159,7 +159,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
                 <span className="text-3xl">{m.emoji}</span>
                 <div>
                   <p className={`font-bold text-sm ${mode === m.id ? 'text-[#FFE500]' : 'text-white'}`}>{m.title}</p>
-                  <p className="text-gray-500 text-xs">{m.desc}</p>
+                  <p className="text-gray-400 text-xs">{m.desc}</p>
                 </div>
               </button>
             ))}
@@ -188,7 +188,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.5rem)' }}
         >
           {!canStart && mode === 'custom' && (
-            <p className="text-center text-gray-500 text-xs mb-2">{tr('selectAtLeast1')}</p>
+            <p className="text-center text-gray-400 text-xs mb-2">{tr('selectAtLeast1')}</p>
           )}
           <button
             onClick={startGame}

@@ -4,6 +4,8 @@ import { ref, set, update, remove } from 'firebase/database'
 import { db } from '../firebase'
 import { useRoom } from '../hooks/useRoom'
 import { usePlayers } from '../hooks/usePlayers'
+import { usePresence } from '../hooks/usePresence'
+import { prefetchStats } from './prefetch'
 import { useVotes } from '../hooks/useVotes'
 import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { QuestionCard } from '../components/QuestionCard'
@@ -38,6 +40,10 @@ export function GameScreen() {
   const me = players[playerId]
   const isHost = me?.isHost ?? false
   const myVote = votes[playerId]
+
+  // Auto-remove this player on disconnect so they don't stall the round as a ghost
+  usePresence(code, playerId, !!me && !me.isHost)
+
   const activePlayers = Object.entries(players).filter(([, p]) => !p.isKicked && p.name.trim())
   const voteCount = Object.keys(votes).length
   const totalExpected = activePlayers.length
@@ -46,7 +52,7 @@ export function GameScreen() {
   const timerSeconds = room?.settings?.timerSeconds ?? 15
   const allowRevoting = room?.settings?.allowRevoting ?? false
 
-  useEffect(() => { playTrack('game') }, [])
+  useEffect(() => { playTrack('game'); prefetchStats() }, [])
 
   useEffect(() => {
     hasAdvanced.current = false // reset guard for new question
@@ -141,7 +147,7 @@ export function GameScreen() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center gap-4 px-6">
+      <div className="min-h-dvh bg-[#0F0F0F] flex flex-col items-center justify-center gap-4 px-6">
         <p className="text-white text-xl font-bold">{tr('roomNotFound')}</p>
         <button onClick={() => navigate('/')} className="text-[#FFE500] text-sm">{tr('goHome')}</button>
       </div>
@@ -154,7 +160,7 @@ export function GameScreen() {
   const question = room.currentQuestion
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col safe-top safe-bottom">
       {/* Red edge glow in the final seconds */}
       {timeLow && (
         <div
@@ -187,7 +193,7 @@ export function GameScreen() {
           <SettingsButton code={code} playerId={playerId} />
           <button
             onClick={() => setShowExit(true)}
-            className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-500 text-xs font-semibold hover:text-white hover:bg-white/10 transition-all"
+            className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-semibold hover:text-white hover:bg-white/10 transition-all"
           >
             {tr('leave')}
           </button>
@@ -204,7 +210,7 @@ export function GameScreen() {
         />
 
         {/* Progress (shown to all players) */}
-        <div className="flex items-center justify-between text-xs text-gray-500 px-1">
+        <div className="flex items-center justify-between text-xs text-gray-400 px-1">
           <span>{tr('votedCountTpl', { n: voteCount, m: totalExpected })}</span>
           {myVote && (
             <span className="text-[#FFE500] font-semibold">
@@ -233,7 +239,7 @@ export function GameScreen() {
         {/* Host vote progress dots */}
         {isHost && (
           <div className="mt-auto flex items-center justify-center gap-2 py-2">
-            <span className="text-gray-500 text-xs font-semibold">{tr('votedCountTpl', { n: voteCount, m: totalExpected })}</span>
+            <span className="text-gray-400 text-xs font-semibold">{tr('votedCountTpl', { n: voteCount, m: totalExpected })}</span>
             <div className="flex gap-1.5">
               {activePlayers
                 .sort(([, a], [, b]) => a.joinedAt - b.joinedAt)

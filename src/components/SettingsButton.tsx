@@ -16,7 +16,7 @@ export function SettingsButton({ code, playerId }: Props) {
       <button
         onClick={() => setOpen(true)}
         aria-label="Settings"
-        className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-500 hover:text-white hover:bg-white/10 transition-all flex-shrink-0"
+        className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all flex-shrink-0"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
           <circle cx="12" cy="12" r="3" />

@@ -11,7 +11,7 @@ export function useVotes(code: string, questionIndex: number) {
     const votesRef = ref(db, `rooms/${code}/votes/${questionIndex}`)
     const unsub = onValue(votesRef, snap => {
       setVotes(snap.exists() ? (snap.val() as Record<string, string>) : {})
-    })
+    }, err => console.error('useVotes listener cancelled:', err))
     return unsub
   }, [code, questionIndex])
 

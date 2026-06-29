@@ -33,7 +33,7 @@ export function QRDisplay({ code, joinUrl }: Props) {
           {copied ? `✓ ${tr('copied')}` : tr('copy')}
         </button>
       </div>
-      <p className="text-gray-500 text-xs text-center">
+      <p className="text-gray-400 text-xs text-center">
         {tr('scanOrEnterAt')} <span className="text-gray-400" dir="ltr">{window.location.host}/join</span>
       </p>
     </div>

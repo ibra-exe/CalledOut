@@ -1,4 +1,5 @@
 import type { Player } from '../types'
+import { Avatar } from './Avatar'
 import { useT } from '../i18n'
 
 interface Props {
@@ -26,12 +27,7 @@ export function VoteButton({ player, isSelected, disabled, isSelf, onClick }: Pr
         }
       `}
     >
-      <div
-        className="w-11 h-11 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-        style={{ backgroundColor: player.color + '33', border: `2px solid ${player.color}` }}
-      >
-        {player.icon}
-      </div>
+      <Avatar icon={player.icon} color={player.color} size="md" />
       <span className={`font-semibold text-white flex-1 truncate ${player.font}`}>
         {player.name}{isSelf ? ` ${tr('you')}` : ''}
       </span>

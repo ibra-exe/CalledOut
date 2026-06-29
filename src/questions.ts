@@ -1,17 +1,8 @@
 import type { Question } from './types'
 
-export const CATEGORIES = [
-  { id: 'spicy', label: 'Spicy', emoji: '🔥' },
-  { id: 'funny', label: 'Funny', emoji: '😂' },
-  { id: 'deep', label: 'Deep', emoji: '🧠' },
-  { id: 'chaotic', label: 'Chaotic', emoji: '💀' },
-  { id: 'romantic', label: 'Romantic', emoji: '💘' },
-  { id: 'achievements', label: 'Achievements', emoji: '🏆' },
-  { id: 'awkward', label: 'Awkward', emoji: '😬' },
-  { id: 'bold', label: 'Bold', emoji: '🌶️' },
-  { id: 'dark', label: 'Dark Humor', emoji: '🖤' },
-]
-
+// Category metadata + helpers now live in categories.ts (kept lightweight).
+// This file holds only the heavy data array so it can be code-split / lazily
+// imported and never lands on the first-paint path.
 export const QUESTIONS: Question[] = [
   // 🔥 Spicy (75)
   { id: "spicy-001", en: "Who would ghost someone without feeling bad?", ar: "مين يطنّش واحد ويختفي وما يحس بأي ذنب؟", category: "spicy" },
@@ -931,17 +922,3 @@ export const QUESTIONS: Question[] = [
   { id: "dark-099", en: "Who would joke about being haunted and actually mean it?", ar: "مين فينا يمزح إنه مسكون ويكون فعلاً يقصدها؟", category: "dark" },
   { id: "dark-100", en: "Who would be the most dangerous person with a flashlight in the dark?", ar: "مين أخطر واحد فينا لو بيده كشّاف في الظلام؟", category: "dark" },
 ]
-
-export function getQuestionsByCategories(categoryIds: string[]): Question[] {
-  if (categoryIds.length === 0) return QUESTIONS
-  return QUESTIONS.filter(q => categoryIds.includes(q.category))
-}
-
-export function shuffleQuestions(questions: Question[]): Question[] {
-  const arr = [...questions]
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  return arr
-}

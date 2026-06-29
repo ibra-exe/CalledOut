@@ -5,7 +5,7 @@ interface Props {
 // Branded full-screen loader: a mic + bouncing yellow dots.
 export function Loader({ label }: Props) {
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center gap-5">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col items-center justify-center gap-5">
       <div className="text-4xl animate-pop-in">🎤</div>
       <div className="flex gap-1.5">
         {[0, 1, 2].map(i => (
@@ -16,7 +16,7 @@ export function Loader({ label }: Props) {
           />
         ))}
       </div>
-      {label && <p className="text-gray-500 text-sm font-semibold">{label}</p>}
+      {label && <p className="text-gray-400 text-sm font-semibold">{label}</p>}
     </div>
   )
 }

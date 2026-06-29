@@ -13,6 +13,9 @@ export function usePlayers(code: string) {
     const unsub = onValue(playersRef, snap => {
       setPlayers(snap.exists() ? (snap.val() as Record<string, Player>) : {})
       setLoading(false)
+    }, err => {
+      console.error('usePlayers listener cancelled:', err)
+      setLoading(false)
     })
     return unsub
   }, [code])

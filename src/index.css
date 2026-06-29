@@ -17,6 +17,15 @@
   input, button, textarea {
     font-family: inherit;
   }
+
+  /* Visible keyboard-focus indicator (we strip the tap highlight above, so
+     without this keyboard/switch users get no focus cue). Only shows for
+     keyboard focus, not mouse/touch. */
+  :focus-visible {
+    outline: 2px solid #FFE500;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
 }
 
 @layer utilities {
@@ -59,6 +68,10 @@
   .h-safe-area-bottom {
     height: env(safe-area-inset-bottom, 16px);
   }
+  /* Clear the notch / home indicator in standalone (needs viewport-fit=cover).
+     Safe on min-h-dvh roots because box-sizing is border-box globally. */
+  .safe-top { padding-top: env(safe-area-inset-top, 0px); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
   /* Question card / generic entrance */
   .animate-card-in {

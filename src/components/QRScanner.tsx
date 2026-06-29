@@ -69,8 +69,8 @@ export function QRScanner({ onScan, onClose }: Props) {
   }, [onScan])
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-      <div className="bg-[#1A1A1A] rounded-3xl p-4 w-full max-w-sm">
+    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4 animate-backdrop-in">
+      <div className="bg-[#1A1A1A] rounded-3xl p-4 w-full max-w-sm animate-card-in">
         <div className="flex items-center justify-between mb-4">
           <span className="text-white font-bold">{tr('scanQRTitle')}</span>
           <button onClick={onClose} className="text-gray-400 text-xl w-8 h-8 flex items-center justify-center">✕</button>
@@ -89,7 +89,7 @@ export function QRScanner({ onScan, onClose }: Props) {
         ) : (
           <>
             <div id="qr-scanner-region" ref={regionRef} className="rounded-xl overflow-hidden" />
-            <p className="text-gray-500 text-xs text-center mt-3">{tr('scanQRHint')}</p>
+            <p className="text-gray-400 text-xs text-center mt-3">{tr('scanQRHint')}</p>
           </>
         )}
       </div>

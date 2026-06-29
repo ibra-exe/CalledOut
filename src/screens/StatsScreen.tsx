@@ -8,6 +8,7 @@ import { getOrCreatePlayerId } from '../utils/roomUtils'
 import { assignTitles } from '../utils/statsUtils'
 import { playGameOver, playTitleAssigned } from '../utils/soundUtils'
 import { Loader } from '../components/Loader'
+import { Avatar } from '../components/Avatar'
 import { AmbientBackground } from '../components/AmbientBackground'
 import { playTrack } from '../music'
 import { useT } from '../i18n'
@@ -103,13 +104,13 @@ export function StatsScreen() {
   if (!room) return <Loader label={tr('loading')} />
 
   return (
-    <div className="relative overflow-hidden min-h-screen bg-[#0F0F0F] flex flex-col px-4 pt-10 pb-10">
+    <div className="relative overflow-hidden min-h-dvh bg-[#0F0F0F] flex flex-col px-4 pt-10 pb-10 safe-top safe-bottom">
       <AmbientBackground />
       <div className="relative z-10 flex flex-col">
       <div className="text-center mb-8">
         <div className="text-5xl mb-3 animate-pop-in">🎤</div>
         <h1 className="text-3xl font-black text-white">{tr('verdictIn')}</h1>
-        <p className="text-gray-500 text-sm mt-2">{tr('howCalledOut')}</p>
+        <p className="text-gray-400 text-sm mt-2">{tr('howCalledOut')}</p>
       </div>
 
       {/* Title cards */}
@@ -124,16 +125,11 @@ export function StatsScreen() {
               className={`flex items-center gap-4 p-4 rounded-2xl bg-[#1A1A1A] border border-white/5 transition-all duration-500 ${revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
               style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <div
-                className="w-14 h-14 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
-                style={{ backgroundColor: player.color + '33', border: `2px solid ${player.color}` }}
-              >
-                {player.icon}
-              </div>
+              <Avatar icon={player.icon} color={player.color} size="lg" />
               <div className="flex-1 min-w-0">
                 <p className={`font-black text-white text-base truncate ${player.font}`}>{player.name}</p>
                 <p className="text-[#FFE500] font-bold text-sm">{emoji} {tr(`title_${titleEntry.titleId}`)}</p>
-                <p className="text-gray-500 text-xs">{tr(`sub_${titleEntry.titleId}`, titleEntry.params)}</p>
+                <p className="text-gray-400 text-xs">{tr(`sub_${titleEntry.titleId}`, titleEntry.params)}</p>
               </div>
             </div>
           )

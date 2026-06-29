@@ -30,7 +30,7 @@ export function AboutScreen() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex flex-col px-6 pt-8 pb-12">
+    <div className="min-h-dvh bg-[#0F0F0F] flex flex-col px-6 pt-8 pb-12">
       {/* Back */}
       <button
         onClick={() => navigate('/')}
