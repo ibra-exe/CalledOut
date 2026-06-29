@@ -29,7 +29,7 @@ Multi-agent audit of the codebase; 48 findings verified against real code. Statu
 ### ⚡ Performance
 
 **Quick wins:**
-- ⬜ Re-encode music to mono ~96 kbps (~2.3 MB saved). _Needs ffmpeg (unavailable in the dev env)._ Command: `ffmpeg -i in.mp3 -ac 1 -b:a 96k out.mp3`. `public/audio/*` _(S, high)_
+- ✅ Re-encode music — converted to mono AAC `.m4a` via macOS `afconvert` (no ffmpeg needed): main-screen 3.0 MB → 1.5 MB, in-game 936 KB → 478 KB (~2.0 MB / ~50% saved). `music.ts` points at the `.m4a`; old MP3s removed. Verified the browser decodes them. `public/audio/*`, `src/music.ts` _(S, high)_
 - ✅ Defer the home-music download — `audio.preload='none'` so the multi-MB track isn't fetched at cold start (playback is gesture-gated). `src/music.ts` _(S, med)_
 - ✅ Lazy-load `canvas-confetti` — handled by route-split: confetti now lives only in the Reveal (via GameRouter) chunk, off first paint. _(S, low)_
 - ✅ Collapse the duplicate room subscription — impact neutralized: `useRoom` now skips re-renders on vote/player churn (see below), so the two same-node listeners both no-op per vote. Literal de-dup (lift sub into `GameRouter`, pass `room` down) left as optional cleanup with ~zero runtime benefit now. _(S–M, low)_
@@ -55,7 +55,7 @@ Multi-agent audit of the codebase; 48 findings verified against real code. Statu
 **Bigger bets:**
 - ✅ Reconnect banner + `onValue` error callbacks — `.info/connected` banner (`useConnection` + `ConnectionBanner`, debounced 2s) on Lobby + in-game; cancel callbacks on all 3 hooks so a denied/dropped listener can't strand the screen. Verified via forced offline. _(M, med)_
 - 🟡 Extract `PrimaryButton`/`Avatar` — `Avatar` ✅ done (PlayerCard, VoteButton, Reveal, Stats now share one ringed-chip component). `PrimaryButton` ⬜ deferred: 22 `bg-[#FFE500] text-[#0F0F0F]` sites mix true CTAs with selected-toggle states; needs careful per-site disambiguation — best as a focused pass. _(M, med)_
-- ⬜ Real PWA icons (192/512 + maskable + apple-touch instead of one emoji SVG) — needs binary PNG asset generation. `public/manifest.json`, `index.html` _(S, low)_
+- ✅ Real PWA icons — generated brand-yellow + dark-mic PNGs (192/512 "any", 512 maskable w/ safe-zone, 180 apple-touch) and wired into the manifest + `apple-touch-icon` link. `public/icon-*.png`, `public/apple-touch-icon.png`, `public/manifest.json`, `index.html` _(S, low)_
 
 ### 🗑️ Considered & dropped (not worth it)
 

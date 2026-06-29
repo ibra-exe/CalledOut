@@ -5,8 +5,8 @@ import { getSettings } from './utils/settingsUtils'
 // browser autoplay policy (starts on the first user gesture if blocked).
 
 const SRC = {
-  home: '/audio/main-screen.mp3',
-  game: '/audio/in-game.mp3',
+  home: '/audio/main-screen.m4a',
+  game: '/audio/in-game.m4a',
 } as const
 const VOL = {
   home: 0.45,
