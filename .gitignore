@@ -35,3 +35,6 @@ Thumbs.db
 
 # Vite
 .vite/
+
+# Firebase local deploy cache
+.firebase/
