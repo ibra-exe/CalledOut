@@ -142,6 +142,25 @@ export function SettingsModal({ onClose, roomCode, playerId }: Props) {
           </button>
         </div>
 
+        {/* Family-friendly — hides the mature categories from game setup */}
+        <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-2xl mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{settings.familyFriendly ? '👪' : '🌶️'}</span>
+            <div>
+              <p className="text-white font-semibold text-sm">{tr('familyFriendly')}</p>
+              <p className="text-gray-400 text-xs">{tr('familyFriendlyDesc')}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => update_({ familyFriendly: !settings.familyFriendly })}
+            className={`relative w-14 h-7 rounded-full flex-shrink-0 transition-colors duration-200 ${settings.familyFriendly ? 'bg-[#FFE500]' : 'bg-white/20'}`}
+          >
+            <span
+              className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${settings.familyFriendly ? 'translate-x-7' : 'translate-x-0'}`}
+            />
+          </button>
+        </div>
+
         <div className="h-safe-area-bottom mt-2" />
       </div>
     </div>

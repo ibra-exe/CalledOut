@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { ref, update } from 'firebase/database'
 import { db } from '../firebase'
-import { CATEGORIES, shuffleQuestions } from '../categories'
+import { CATEGORIES, MATURE_CATEGORY_IDS, shuffleQuestions } from '../categories'
 import { fetchQuestionsForGame } from '../questionBank'
+import { getSettings } from '../utils/settingsUtils'
 import { useT } from '../i18n'
 
 interface Props {
@@ -24,6 +25,11 @@ export function CategorySelectScreen({ code, onClose }: Props) {
   const [allowRevoting, setAllowRevoting] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // Family-friendly (on by default) hides the mature categories from setup.
+  const availableCategories = getSettings().familyFriendly
+    ? CATEGORIES.filter(c => !MATURE_CATEGORY_IDS.includes(c.id))
+    : CATEGORIES
+
   const toggleCategory = (id: string) => {
     setSelected(prev =>
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
@@ -35,9 +41,9 @@ export function CategorySelectScreen({ code, onClose }: Props) {
     let categoryIds: string[] = []
 
     if (mode === 'all') {
-      categoryIds = CATEGORIES.map(c => c.id)
+      categoryIds = availableCategories.map(c => c.id)
     } else if (mode === 'random') {
-      const shuffled = [...CATEGORIES].sort(() => Math.random() - 0.5)
+      const shuffled = [...availableCategories].sort(() => Math.random() - 0.5)
       categoryIds = shuffled.slice(0, 4).map(c => c.id)
     } else {
       categoryIds = selected
@@ -168,7 +174,7 @@ export function CategorySelectScreen({ code, onClose }: Props) {
 
         {mode === 'custom' && (
           <div className="grid grid-cols-2 gap-2">
-            {CATEGORIES.map(cat => (
+            {availableCategories.map(cat => (
               <button
                 key={cat.id}
                 onClick={() => toggleCategory(cat.id)}
