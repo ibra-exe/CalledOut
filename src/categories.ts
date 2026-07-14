@@ -13,7 +13,8 @@ export const CATEGORIES = [
   { id: 'romantic', label: 'Romantic', emoji: '💘' },
   { id: 'achievements', label: 'Achievements', emoji: '🏆' },
   { id: 'awkward', label: 'Awkward', emoji: '😬' },
-  { id: 'bold', label: 'Bold', emoji: '🌶️' },
+  { id: 'bold', label: 'Bold', emoji: '💪' },
+  { id: 'foodie', label: 'Foodie', emoji: '🍕' },
   { id: 'dark', label: 'Dark Humor', emoji: '🖤' },
 ]
 

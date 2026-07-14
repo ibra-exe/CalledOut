@@ -28,7 +28,7 @@ No app install needed — it runs in any mobile browser and can be added to the 
 - 🌐 **Bilingual (English + Arabic)** — full UI and question translations in Saudi colloquial Arabic, with right-to-left layout
 - 📸 **QR code join** — scan to jump straight into a room
 - 🎨 **Player profiles** — custom name, emoji icon, color, and font (retro, pixel, and handwritten typefaces)
-- 🗂 **~900 questions** across 9 categories — Unfiltered, Funny, Deep, Chaotic, Romantic, Achievements, Awkward, Bold, and Dark Humor
+- 🗂 **~980 questions** across 10 categories — Unfiltered, Funny, Deep, Chaotic, Romantic, Achievements, Awkward, Bold, Foodie, and Dark Humor
 - 👪 **Family-friendly mode** — on by default; hides the mature-leaning categories from game setup (toggle off in Settings to include them)
 - ⏱ **Configurable sessions** — question count, timer length, and a revoting mode (timer-only vs. end the round once everyone has voted)
 - 🏆 **Dynamic end-game titles** — personality labels assigned from how each player was actually voted (Main Character, The Sleeper, Their Own Biggest Fan, The Forgotten One…)

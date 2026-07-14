@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CATEGORIES } from '../categories'
+import { CATEGORIES, MATURE_CATEGORY_IDS } from '../categories'
 import { submitSuggestion } from '../questionBank'
+import { getSettings } from '../utils/settingsUtils'
 import { getSavedProfile, saveProfileLocally } from '../utils/profileUtils'
 import { playProfileSaved } from '../utils/soundUtils'
 import { useT } from '../i18n'
@@ -10,6 +11,11 @@ export function SuggestScreen() {
   const navigate = useNavigate()
   const tr = useT()
   const saved = getSavedProfile()
+
+  // Respect the Family-friendly setting — hide mature categories from suggestions too.
+  const availableCategories = getSettings().familyFriendly
+    ? CATEGORIES.filter(c => !MATURE_CATEGORY_IDS.includes(c.id))
+    : CATEGORIES
 
   const [name, setName] = useState(saved.name)
   const [category, setCategory] = useState('')
@@ -87,7 +93,7 @@ export function SuggestScreen() {
         <div>
           <label className="text-white font-bold text-sm">{tr('suggestCategory')}</label>
           <div className="grid grid-cols-2 gap-2 mt-2">
-            {CATEGORIES.map(cat => (
+            {availableCategories.map(cat => (
               <button
                 key={cat.id}
                 onClick={() => setCategory(cat.id)}

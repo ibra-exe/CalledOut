@@ -71,6 +71,8 @@ export function HomeScreen() {
   const [showSettings, setShowSettings] = useState(false)
   const [profile, setProfile] = useState<PlayerProfile>(getSavedProfile)
   const [musicOn, setMusicOn] = useState(() => getSettings().musicEnabled)
+  // Clean tagline when family-friendly is on (the default); the edgy one only when it's off.
+  const tagline = tr(getSettings().familyFriendly ? 'taglineClean' : 'tagline')
 
   useEffect(() => { playTrack('home') }, [])
 
@@ -138,10 +140,10 @@ export function HomeScreen() {
             animation never shifts the buttons below it */}
         <div className="relative mt-3 max-w-xs mx-auto">
           <p className="text-gray-400 text-base invisible" aria-hidden>
-            {tr('tagline')}
+            {tagline}
           </p>
           <p className="text-gray-400 text-base absolute inset-0">
-            <TypewriterLine key={tr('tagline')} text={tr('tagline')} delay={400} speed={80} cursor={false} />
+            <TypewriterLine key={tagline} text={tagline} delay={400} speed={80} cursor={false} />
           </p>
         </div>
       </div>

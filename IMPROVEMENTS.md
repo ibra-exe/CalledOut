@@ -104,6 +104,7 @@ Multi-agent audit of the codebase; 48 findings verified against real code. Statu
 
 ## 📚 Content system (leverages existing bank/inbox/IDs)
 
+- **More categories** — family-friendly additions to grow the bank (each ~80 bilingual Qs): **Wholesome 🥰**, **Adventurous ✈️**, **Hidden Talents 🎯**. (Foodie 🍕 already added.) _(med)_
 - **No-repeat across sessions** — track seen question IDs per group in localStorage. _(low)_
 - **Report / flag a question in-game** → routes into the admin Inbox. _(low)_
 - **Question packs / themes** — Couples, Family-friendly, seasonal (Ramadan/holidays), 18+. _(med)_
